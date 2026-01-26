@@ -1,0 +1,63 @@
+{
+    "currency": "RUB",
+    "reviewCosts": {
+        "tier1": {
+            "maxReviews": 99,
+            "costPerReview": 440
+        },
+        "tier2": {
+            "maxReviews": 499,
+            "costPerReview": 360
+        },
+        "tier3": {
+            "maxReviews": 999,
+            "costPerReview": 320
+        },
+        "tier4": {
+            "maxReviews": null,
+            "costPerReview": 280
+        }
+    },
+    "processingFee": {
+        "base": 4000,
+        "percentagePerReview": 0.08
+    },
+    "hotelBookingFee": {
+        "reviewsCount": 10,
+        "percentage": 0.6
+    },
+    "additionalServices": {
+        "videoReview": 24000,
+        "exclusiveArticle": 12000,
+        "aiArticle": 2400,
+        "articlePlacement": 800,
+        "chatConsultation": 4000,
+        "voiceConsultation": 8000
+    },
+    "originalCurrencies": {
+        "USD": {
+            "reviewCosts": {
+                "tier1": 5.5,
+                "tier2": 4.5,
+                "tier3": 4.0,
+                "tier4": 3.5
+            },
+            "processingFee": {
+                "base": 50,
+                "percentagePerReview": 0.001
+            },
+            "chatConsultation": 50,
+            "voiceConsultation": 100
+        },
+        "EUR": {
+            "videoReview": 300,
+            "exclusiveArticle": 150,
+            "aiArticle": 30,
+            "articlePlacement": 10
+        }
+    },
+    "conversionRate": {
+        "USD": 80,
+        "EUR": 80
+    }
+}
