@@ -30,6 +30,40 @@
         </div>
         
         <h1><i class="fas fa-star"></i> <span id="title">Калькулятор исправления отзывов</span></h1>
+        <div class="brand-banner">
+            <div class="brand-text">
+                <span id="brandLabel">Сервис «Ваша Репутация»</span>
+                <p id="brandSubtitle">Управление рейтингом объекта на 25+ платформах</p>
+            </div>
+            <a class="brand-link" href="https://yourep.ru" target="_blank" rel="noopener">
+                <span id="brandLinkLabel">yourep.ru</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+
+        <section class="promo">
+            <div class="promo-header">
+                <h2 id="promoTitle">Промо-элементы</h2>
+                <p id="promoSubtitle">Готовые преимущества и быстрый старт</p>
+            </div>
+            <div class="promo-grid">
+                <div class="promo-card">
+                    <i class="fas fa-bolt"></i>
+                    <h3 id="promoItem1Title">Быстрый запуск</h3>
+                    <p id="promoItem1Text">Получите расчёт и заявку в Telegram за 2 минуты.</p>
+                </div>
+                <div class="promo-card">
+                    <i class="fas fa-shield-alt"></i>
+                    <h3 id="promoItem2Title">Защита заявки</h3>
+                    <p id="promoItem2Text">Поддержка идемпотентности и анти-DDoS SmartCaptcha.</p>
+                </div>
+                <div class="promo-card">
+                    <i class="fas fa-file-alt"></i>
+                    <h3 id="promoItem3Title">Структурированный отчёт</h3>
+                    <p id="promoItem3Text">PDF с разделами затрат, сроков и доп. услуг.</p>
+                </div>
+            </div>
+        </section>
         
         <div class="input-group" id="currentReviewsGroup">
             <label for="currentReviews"><i class="fas fa-comment-alt"></i> <span id="currentReviewsLabel">Текущее количество отзывов (0-10000):</span></label>
@@ -145,8 +179,50 @@
         <div class="modal-content">
             <span class="close">×</span>
             <h2 id="modalTitle">Сводка заказа</h2>
-            <div id="orderSummary"></div>
-            <button id="modalDownloadPdf"><i class="fas fa-download"></i> <span id="downloadPdfLabel">Скачать подсчёт улучшения рейтингов</span></button>
+            <div class="modal-grid">
+                <div class="modal-section">
+                    <h3 id="summaryTitle">Сводка расчёта</h3>
+                    <div id="orderSummary"></div>
+                    <div class="report-format">
+                        <h4 id="reportFormatTitle">Формат отчёта</h4>
+                        <ul id="reportFormatList"></ul>
+                    </div>
+                    <button id="modalDownloadPdf"><i class="fas fa-download"></i> <span id="downloadPdfLabel">Скачать подсчёт улучшения рейтингов</span></button>
+                </div>
+                <div class="modal-section">
+                    <h3 id="requestTitle">Заявка в Telegram</h3>
+                    <form id="orderForm">
+                        <label for="platformInput"><i class="fas fa-globe"></i> <span id="platformLabel">Площадка</span></label>
+                        <input type="text" id="platformInput" name="platform" required>
+
+                        <label for="discountInput"><i class="fas fa-tag"></i> <span id="discountLabel">Номер скидки</span></label>
+                        <input type="text" id="discountInput" name="discount" required>
+
+                        <label for="contactName"><i class="fas fa-user"></i> <span id="contactNameLabel">Контактное лицо</span></label>
+                        <input type="text" id="contactName" name="contactName" required>
+
+                        <label for="contactPhone"><i class="fas fa-phone"></i> <span id="contactPhoneLabel">Телефон</span></label>
+                        <input type="tel" id="contactPhone" name="contactPhone" required>
+
+                        <label for="contactTelegram"><i class="fab fa-telegram"></i> <span id="contactTelegramLabel">Telegram</span></label>
+                        <input type="text" id="contactTelegram" name="contactTelegram">
+
+                        <label for="contactEmail"><i class="fas fa-envelope"></i> <span id="contactEmailLabel">Email</span></label>
+                        <input type="email" id="contactEmail" name="contactEmail">
+
+                        <label for="captchaToken"><i class="fas fa-robot"></i> <span id="captchaLabel">Yandex SmartCaptcha Token</span></label>
+                        <input type="text" id="captchaToken" name="captchaToken" placeholder="smartcaptcha-token">
+
+                        <label for="orderComment"><i class="fas fa-comment-dots"></i> <span id="orderCommentLabel">Комментарий</span></label>
+                        <textarea id="orderComment" name="orderComment" rows="3"></textarea>
+
+                        <div class="form-actions">
+                            <button type="submit" id="submitOrderButton" class="fast"><i class="fas fa-paper-plane"></i> <span id="submitOrderLabel">Отправить заявку</span></button>
+                        </div>
+                        <div id="orderStatus" class="order-status"></div>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
     
