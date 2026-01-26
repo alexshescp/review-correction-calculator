@@ -1,5 +1,6 @@
 let translations = {};
 let pricing = {};
+let currentOrderContext = null;
 
 // Load translations and pricing from JSON files
 Promise.all([
@@ -19,6 +20,7 @@ Promise.all([
         initializeServiceLabels();
         updateRanges(); // Initialize ranges on load
         updateInputVisibility(); // Initialize input visibility
+        applyUrlParams();
     })
     .catch(error => console.error('Error loading JSON files:', error));
 
@@ -96,7 +98,30 @@ function updateLanguage(lang) {
         newRatingMinLabel: translations[lang].newRatingMin,
         newRatingMaxLabel: translations[lang].newRatingMax,
         organicButton: translations[lang].organicButton,
-        fastButton: translations[lang].fastButton
+        fastButton: translations[lang].fastButton,
+        promoTitle: translations[lang].promoTitle,
+        promoSubtitle: translations[lang].promoSubtitle,
+        promoItem1Title: translations[lang].promoItem1Title,
+        promoItem1Text: translations[lang].promoItem1Text,
+        promoItem2Title: translations[lang].promoItem2Title,
+        promoItem2Text: translations[lang].promoItem2Text,
+        promoItem3Title: translations[lang].promoItem3Title,
+        promoItem3Text: translations[lang].promoItem3Text,
+        brandLabel: translations[lang].brandLabel,
+        brandSubtitle: translations[lang].brandSubtitle,
+        brandLinkLabel: translations[lang].brandLinkLabel,
+        summaryTitle: translations[lang].summaryTitle,
+        reportFormatTitle: translations[lang].reportFormatTitle,
+        requestTitle: translations[lang].requestTitle,
+        platformLabel: translations[lang].platformLabel,
+        discountLabel: translations[lang].discountLabel,
+        contactNameLabel: translations[lang].contactNameLabel,
+        contactPhoneLabel: translations[lang].contactPhoneLabel,
+        contactTelegramLabel: translations[lang].contactTelegramLabel,
+        contactEmailLabel: translations[lang].contactEmailLabel,
+        captchaLabel: translations[lang].captchaLabel,
+        orderCommentLabel: translations[lang].orderCommentLabel,
+        submitOrderLabel: translations[lang].submitOrderLabel
     };
 
     Object.entries(elements).forEach(([id, text]) => {
@@ -106,6 +131,7 @@ function updateLanguage(lang) {
     });
 
     initializeServiceLabels();
+    renderReportFormat(lang);
     calculate();
 }
 
@@ -136,6 +162,19 @@ const inputs = {
     articlePlacementQtyRange: document.getElementById('articlePlacementQtyRange'),
     chatConsultationQty: document.getElementById('chatConsultationQty'),
     voiceConsultationQty: document.getElementById('voiceConsultationQty')
+};
+
+const orderFormElements = {
+    form: document.getElementById('orderForm'),
+    platform: document.getElementById('platformInput'),
+    discount: document.getElementById('discountInput'),
+    contactName: document.getElementById('contactName'),
+    contactPhone: document.getElementById('contactPhone'),
+    contactTelegram: document.getElementById('contactTelegram'),
+    contactEmail: document.getElementById('contactEmail'),
+    captchaToken: document.getElementById('captchaToken'),
+    orderComment: document.getElementById('orderComment'),
+    status: document.getElementById('orderStatus')
 };
 
 const values = {
@@ -426,16 +465,12 @@ function calculateOrder(isFast) {
     const result = calculate();
     if (!result) return;
 
-    const { newReviewsNeeded, serviceQuantities, serviceCosts, totalReviewCost, processingFee, transferPaymentCost } = result;
     const currentLang = document.getElementById('languageSelect')?.value || 'en';
     const resultDiv = document.getElementById('result');
     const errorDiv = document.getElementById('error');
     const modal = document.getElementById('orderModal');
     const orderSummaryDiv = document.getElementById('orderSummary');
     const modalTitle = document.getElementById('modalTitle');
-
-    const platform = prompt(translations[currentLang].promptPlatform) || translations[currentLang].platformUnknown || 'Unknown Platform';
-    const discountNumber = prompt(translations[currentLang].promptDiscountNumber) || translations[currentLang].discountNumberUnknown || 'N/A';
 
     let finalTransferPaymentCost = 0;
     if (isFast && inputs.requiresReservation.checked) {
@@ -448,6 +483,7 @@ function calculateOrder(isFast) {
         finalTransferPaymentCost = reservationCost * newReviewsNeeded;
     }
 
+    const { newReviewsNeeded, serviceQuantities, serviceCosts, totalReviewCost, processingFee } = result;
     const totalCost = totalReviewCost + processingFee + finalTransferPaymentCost +
         Object.values(serviceCosts).reduce((sum, cost) => sum + cost, 0);
 
@@ -466,49 +502,24 @@ function calculateOrder(isFast) {
         maxMonths = 8;
     }
 
-    let additionalServicesSummary = '';
-    if (Object.values(serviceQuantities).some(qty => qty > 0)) {
-        additionalServicesSummary = `\n\n${translations[currentLang].additionalServices}:\n`;
-        if (serviceQuantities.videoReview > 0) {
-            additionalServicesSummary += `${translations[currentLang].videoReview}: ${serviceQuantities.videoReview} x ${pricing.additionalServices.videoReview.toFixed(2)} ₽ = ${serviceCosts.videoReview.toFixed(2)} ₽\n`;
-        }
-        if (serviceQuantities.exclusiveArticle > 0) {
-            additionalServicesSummary += `${translations[currentLang].exclusiveArticle}: ${serviceQuantities.exclusiveArticle} x ${pricing.additionalServices.exclusiveArticle.toFixed(2)} ₽ = ${serviceCosts.exclusiveArticle.toFixed(2)} ₽\n`;
-        }
-        if (serviceQuantities.aiArticle > 0) {
-            additionalServicesSummary += `${translations[currentLang].aiArticle}: ${serviceQuantities.aiArticle} x ${pricing.additionalServices.aiArticle.toFixed(2)} ₽ = ${serviceCosts.aiArticle.toFixed(2)} ₽\n`;
-        }
-        if (serviceQuantities.articlePlacement > 0) {
-            additionalServicesSummary += `${translations[currentLang].articlePlacement}: ${serviceQuantities.articlePlacement} x ${pricing.additionalServices.articlePlacement.toFixed(2)} ₽ = ${serviceCosts.articlePlacement.toFixed(2)} ₽\n`;
-        }
-        if (serviceQuantities.chatConsultation > 0) {
-            additionalServicesSummary += `${translations[currentLang].chatConsultation} (${translations[currentLang].languageName}): ${serviceQuantities.chatConsultation} x ${pricing.additionalServices.chatConsultation.toFixed(2)} ₽ = ${serviceCosts.chatConsultation.toFixed(2)} ₽\n`;
-        }
-        if (serviceQuantities.voiceConsultation > 0) {
-            additionalServicesSummary += `${translations[currentLang].voiceConsultation} (${translations[currentLang].languageName}): ${serviceQuantities.voiceConsultation} x ${pricing.additionalServices.voiceConsultation.toFixed(2)} ₽ = ${serviceCosts.voiceConsultation.toFixed(2)} ₽\n`;
-        }
-    }
-
-    const orderSummary = [
-        `${translations[currentLang].discountNumber}: ${discountNumber}`,
-        `${translations[currentLang].platform}: ${platform}`,
-        `${translations[currentLang].newReviewsNeeded}: ${newReviewsNeeded}`,
-        `${translations[currentLang].reviewCost}: ${totalReviewCost.toFixed(2)} ₽`,
-        `${translations[currentLang].processingFee}: ${processingFee.toFixed(2)} ₽`,
-        isFast && inputs.requiresReservation.checked ? `${translations[currentLang].transferPaymentCost.replace('{cost}', `${finalTransferPaymentCost.toFixed(2)} ₽`)}` : '',
-        `${translations[currentLang].placementPeriod}: ${minMonths} ${translations[currentLang].to} ${maxMonths} ${translations[currentLang].months}`,
-        additionalServicesSummary,
-        `\n${translations[currentLang].totalCost}: ${totalCost.toFixed(2)} ₽`
-    ].filter(line => line !== '').join('\n');
+    currentOrderContext = buildOrderContext({
+        result,
+        isFast,
+        finalTransferPaymentCost,
+        minMonths,
+        maxMonths,
+        totalCost,
+        lang: currentLang
+    });
 
     modalTitle.textContent = translations[currentLang].modalTitle;
-    orderSummaryDiv.textContent = orderSummary;
+    orderSummaryDiv.innerHTML = buildOrderSummaryHtml(currentOrderContext, currentLang);
     modal.style.display = 'flex';
     resultDiv.style.display = 'none';
     errorDiv.style.display = 'none';
 
     document.getElementById('modalDownloadPdf').onclick = () => {
-        generatePdf(orderSummary, currentLang);
+        generatePdf(currentOrderContext.pdfSections, currentLang);
     };
 }
 
@@ -516,19 +527,18 @@ function generatePreliminaryPdf() {
     const result = calculate();
     if (!result) return;
 
-    const { newReviewsNeeded, avgNewRating, totalCost, processingFee, totalReviewCost, transferPaymentCost } = result;
     const currentLang = document.getElementById('languageSelect')?.value || 'en';
-
-    const preliminarySummary = [
-        `${translations[currentLang].newReviewsNeeded}: ${newReviewsNeeded}`,
-        `${translations[currentLang].averageRating}: ${avgNewRating.toFixed(1)}`,
-        `${translations[currentLang].reviewCost}: ${totalReviewCost.toFixed(2)} ₽`,
-        `${translations[currentLang].processingFee}: ${processingFee.toFixed(2)} ₽`,
-        inputs.requiresReservation.checked ? `${translations[currentLang].transferPaymentCost.replace('{cost}', `${transferPaymentCost.toFixed(2)} ₽`)}` : '',
-        `${translations[currentLang].totalCost}: ${totalCost.toFixed(2)} ₽`
-    ].filter(line => line !== '').join('\n');
-
-    generatePdf(preliminarySummary, currentLang);
+    const preliminaryContext = buildOrderContext({
+        result,
+        isFast: false,
+        finalTransferPaymentCost: result.transferPaymentCost,
+        minMonths: null,
+        maxMonths: null,
+        totalCost: result.totalCost,
+        lang: currentLang,
+        isPreliminary: true
+    });
+    generatePdf(preliminaryContext.pdfSections, currentLang);
 }
 
 // Close modal
@@ -544,9 +554,10 @@ window.addEventListener('click', (event) => {
     }
 });
 
-async function generatePdf(content, lang) {
+async function generatePdf(sections, lang) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
 
     try {
         const fontResponse = await fetch('/fonts/DejaVuSans.ttf');
@@ -560,12 +571,56 @@ async function generatePdf(content, lang) {
         doc.setFont('times', 'normal');
     }
 
-    doc.setFontSize(14);
-    doc.text(translations[lang].modalTitle || 'Order Summary', 105, 20, { align: 'center' });
+    let headerLogo = null;
+    let headerQr = null;
+    try {
+        headerLogo = await fetchImageAsDataUrl('logo-vr.png');
+    } catch (e) {
+        console.warn('Failed to load logo for PDF header', e);
+    }
+    try {
+        headerQr = await fetchImageAsDataUrl('https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=https://t.me/yourepru_bot');
+    } catch (e) {
+        console.warn('Failed to load QR for PDF header', e);
+    }
 
-    const lines = doc.splitTextToSize(content, 180);
-    doc.setFontSize(12);
-    doc.text(lines, 10, 40);
+    doc.setFillColor(240, 246, 255);
+    doc.rect(0, 0, pageWidth, 40, 'F');
+    if (headerLogo) {
+        doc.addImage(headerLogo, 'PNG', 12, 10, 20, 20);
+    }
+    if (headerQr) {
+        doc.addImage(headerQr, 'PNG', pageWidth - 32, 6, 24, 24);
+    }
+    doc.setFontSize(14);
+    doc.setTextColor(31, 54, 102);
+    doc.text(translations[lang].pdfHeaderTitle || 'Order Summary', pageWidth / 2, 18, { align: 'center' });
+    doc.setFontSize(10);
+    doc.setTextColor(80, 99, 133);
+    doc.text(translations[lang].pdfHeaderSubtitle || '', pageWidth / 2, 26, { align: 'center' });
+    doc.text(translations[lang].pdfHeaderNote || '', pageWidth / 2, 34, { align: 'center' });
+
+    let currentY = 50;
+    sections.forEach(section => {
+        if (!section.rows.length) return;
+        doc.setFontSize(12);
+        doc.text(section.title, 14, currentY);
+        if (doc.autoTable) {
+            doc.autoTable({
+                startY: currentY + 6,
+                head: [[translations[lang].reportTableLabel, translations[lang].reportTableValue]],
+                body: section.rows,
+                theme: 'striped',
+                headStyles: { fillColor: [61, 106, 214], textColor: 255 },
+                styles: { font: 'DejaVuSans' }
+            });
+            currentY = doc.lastAutoTable.finalY + 10;
+        } else {
+            const textLines = doc.splitTextToSize(section.rows.map(row => `${row[0]}: ${row[1]}`).join('\n'), 180);
+            doc.text(textLines, 14, currentY + 6);
+            currentY += textLines.length * 6 + 10;
+        }
+    });
 
     doc.save('order_summary.pdf');
 }
@@ -580,8 +635,213 @@ function arrayBufferToBase64(buffer) {
     return btoa(binary);
 }
 
+async function fetchImageAsDataUrl(url) {
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`Failed to load image ${url}`);
+    }
+    const arrayBuffer = await response.arrayBuffer();
+    const base64 = arrayBufferToBase64(arrayBuffer);
+    return `data:image/png;base64,${base64}`;
+}
+
 document.querySelector('.organic')?.addEventListener('click', () => calculateOrder(false));
 document.querySelector('.fast')?.addEventListener('click', () => calculateOrder(true));
 document.getElementById('downloadPdf').onclick = () => {
     generatePreliminaryPdf();
 };
+
+function buildOrderContext({ result, isFast, finalTransferPaymentCost, minMonths, maxMonths, totalCost, lang, isPreliminary = false }) {
+    const { newReviewsNeeded, avgNewRating, serviceQuantities, serviceCosts, totalReviewCost, processingFee } = result;
+
+    const summaryRows = [
+        [translations[lang].newReviewsNeeded, `${newReviewsNeeded}`],
+        [translations[lang].averageRating, avgNewRating.toFixed(1)],
+        [translations[lang].reviewCost, `${totalReviewCost.toFixed(2)} ₽`],
+        [translations[lang].processingFee, `${processingFee.toFixed(2)} ₽`]
+    ];
+
+    if (inputs.requiresReservation.checked && !isPreliminary) {
+        summaryRows.push([translations[lang].transferPaymentCostLabel, `${finalTransferPaymentCost.toFixed(2)} ₽`]);
+    } else if (inputs.requiresReservation.checked && isPreliminary) {
+        summaryRows.push([translations[lang].transferPaymentCostLabel, `${finalTransferPaymentCost.toFixed(2)} ₽`]);
+    }
+
+    if (minMonths && maxMonths) {
+        summaryRows.push([
+            translations[lang].placementPeriod,
+            `${minMonths} ${translations[lang].to} ${maxMonths} ${translations[lang].months}`
+        ]);
+    }
+
+    const serviceRows = [];
+    if (Object.values(serviceQuantities).some(qty => qty > 0)) {
+        if (serviceQuantities.videoReview > 0) {
+            serviceRows.push([translations[lang].videoReview, `${serviceQuantities.videoReview} x ${pricing.additionalServices.videoReview.toFixed(2)} ₽ = ${serviceCosts.videoReview.toFixed(2)} ₽`]);
+        }
+        if (serviceQuantities.exclusiveArticle > 0) {
+            serviceRows.push([translations[lang].exclusiveArticle, `${serviceQuantities.exclusiveArticle} x ${pricing.additionalServices.exclusiveArticle.toFixed(2)} ₽ = ${serviceCosts.exclusiveArticle.toFixed(2)} ₽`]);
+        }
+        if (serviceQuantities.aiArticle > 0) {
+            serviceRows.push([translations[lang].aiArticle, `${serviceQuantities.aiArticle} x ${pricing.additionalServices.aiArticle.toFixed(2)} ₽ = ${serviceCosts.aiArticle.toFixed(2)} ₽`]);
+        }
+        if (serviceQuantities.articlePlacement > 0) {
+            serviceRows.push([translations[lang].articlePlacement, `${serviceQuantities.articlePlacement} x ${pricing.additionalServices.articlePlacement.toFixed(2)} ₽ = ${serviceCosts.articlePlacement.toFixed(2)} ₽`]);
+        }
+        if (serviceQuantities.chatConsultation > 0) {
+            serviceRows.push([translations[lang].chatConsultation, `${serviceQuantities.chatConsultation} x ${pricing.additionalServices.chatConsultation.toFixed(2)} ₽ = ${serviceCosts.chatConsultation.toFixed(2)} ₽`]);
+        }
+        if (serviceQuantities.voiceConsultation > 0) {
+            serviceRows.push([translations[lang].voiceConsultation, `${serviceQuantities.voiceConsultation} x ${pricing.additionalServices.voiceConsultation.toFixed(2)} ₽ = ${serviceCosts.voiceConsultation.toFixed(2)} ₽`]);
+        }
+    }
+
+    const pdfSections = [
+        { title: translations[lang].reportSectionCalculation, rows: summaryRows },
+        { title: translations[lang].reportSectionServices, rows: serviceRows },
+        {
+            title: translations[lang].reportSectionTotals,
+            rows: [[translations[lang].totalCost, `${totalCost.toFixed(2)} ₽`]]
+        }
+    ].filter(section => section.rows.length > 0);
+
+    return {
+        isFast,
+        result,
+        minMonths,
+        maxMonths,
+        totalCost,
+        finalTransferPaymentCost,
+        summaryRows,
+        serviceRows,
+        pdfSections
+    };
+}
+
+function buildOrderSummaryHtml(context, lang) {
+    const listItems = context.summaryRows
+        .map(row => `<li><strong>${row[0]}:</strong> ${row[1]}</li>`)
+        .join('');
+    const serviceItems = context.serviceRows.length
+        ? `<li><strong>${translations[lang].additionalServices}</strong><ul>${context.serviceRows.map(row => `<li>${row[0]}: ${row[1]}</li>`).join('')}</ul></li>`
+        : '';
+    return `
+        <ul>
+            ${listItems}
+            ${serviceItems}
+        </ul>
+        <div class="order-total">${translations[lang].totalCost}: ${context.totalCost.toFixed(2)} ₽</div>
+    `;
+}
+
+function renderReportFormat(lang) {
+    const list = document.getElementById('reportFormatList');
+    if (!list) return;
+    const items = translations[lang].reportFormatItems || [];
+    list.innerHTML = items.map(item => `<li>${item}</li>`).join('');
+}
+
+function applyUrlParams() {
+    const params = new URLSearchParams(window.location.search);
+    const setNumberValue = (input, range, valueDisplay, key) => {
+        if (!params.has(key)) return;
+        const value = params.get(key);
+        if (input) input.value = value;
+        if (range) range.value = value;
+        if (valueDisplay) valueDisplay.textContent = value;
+    };
+
+    setNumberValue(inputs.currentReviews, inputs.currentReviewsRange, values.currentReviewsValue, 'currentReviews');
+    setNumberValue(inputs.maxRating, inputs.maxRatingRange, values.maxRatingValue, 'maxRating');
+    setNumberValue(inputs.currentRating, inputs.currentRatingRange, values.currentRatingValue, 'currentRating');
+    setNumberValue(inputs.targetRating, inputs.targetRatingRange, values.targetRatingValue, 'targetRating');
+    setNumberValue(inputs.newRatingMin, null, null, 'newRatingMin');
+    setNumberValue(inputs.newRatingMax, null, null, 'newRatingMax');
+    setNumberValue(inputs.videoReviewQty, inputs.videoReviewQtyRange, values.videoReviewQtyValue, 'videoReviewQty');
+    setNumberValue(inputs.exclusiveArticleQty, inputs.exclusiveArticleQtyRange, values.exclusiveArticleQtyValue, 'exclusiveArticleQty');
+    setNumberValue(inputs.aiArticleQty, inputs.aiArticleQtyRange, values.aiArticleQtyValue, 'aiArticleQty');
+    setNumberValue(inputs.articlePlacementQty, inputs.articlePlacementQtyRange, values.articlePlacementQtyValue, 'articlePlacementQty');
+
+    if (params.has('requiresReservation') && inputs.requiresReservation) {
+        inputs.requiresReservation.checked = params.get('requiresReservation') === 'true';
+    }
+    if (params.has('reservationCost') && inputs.reservationCost) {
+        inputs.reservationCost.value = params.get('reservationCost');
+    }
+    if (params.has('chatConsultation') && inputs.chatConsultationQty) {
+        inputs.chatConsultationQty.checked = params.get('chatConsultation') === 'true';
+    }
+    if (params.has('voiceConsultation') && inputs.voiceConsultationQty) {
+        inputs.voiceConsultationQty.checked = params.get('voiceConsultation') === 'true';
+    }
+
+    if (orderFormElements.platform && params.has('platform')) {
+        orderFormElements.platform.value = params.get('platform');
+    }
+    if (orderFormElements.discount && params.has('discount')) {
+        orderFormElements.discount.value = params.get('discount');
+    }
+
+    updateRanges();
+    updateInputVisibility();
+    calculate();
+}
+
+if (orderFormElements.form) {
+    orderFormElements.form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        if (!currentOrderContext) return;
+        const currentLang = document.getElementById('languageSelect')?.value || 'en';
+        const idempotencyKey = window.crypto?.randomUUID?.() || `order-${Date.now()}`;
+        const payload = {
+            idempotencyKey,
+            language: currentLang,
+            platform: orderFormElements.platform.value.trim(),
+            discountNumber: orderFormElements.discount.value.trim(),
+            contactName: orderFormElements.contactName.value.trim(),
+            contactPhone: orderFormElements.contactPhone.value.trim(),
+            contactTelegram: orderFormElements.contactTelegram.value.trim(),
+            contactEmail: orderFormElements.contactEmail.value.trim(),
+            comment: orderFormElements.orderComment.value.trim(),
+            captchaToken: orderFormElements.captchaToken.value.trim(),
+            calculation: {
+                currentReviews: inputs.currentReviews.value,
+                maxRating: inputs.maxRating.value,
+                currentRating: inputs.currentRating.value,
+                targetRating: inputs.targetRating.value,
+                newRatingMin: inputs.newRatingMin.value,
+                newRatingMax: inputs.newRatingMax.value,
+                requiresReservation: inputs.requiresReservation.checked,
+                reservationCost: inputs.reservationCost.value,
+                serviceQuantities: currentOrderContext.result.serviceQuantities,
+                totalCost: currentOrderContext.totalCost
+            }
+        };
+
+        try {
+            const response = await fetch('send_order.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Idempotency-Key': idempotencyKey
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await response.json();
+            if (!response.ok || data.status !== 'ok') {
+                throw new Error(data.message || 'Submission failed');
+            }
+            setOrderStatus('success', translations[currentLang].submitSuccess);
+        } catch (error) {
+            console.error('Order submission failed', error);
+            setOrderStatus('error', translations[currentLang].submitError);
+        }
+    });
+}
+
+function setOrderStatus(type, message) {
+    if (!orderFormElements.status) return;
+    orderFormElements.status.className = `order-status ${type}`;
+    orderFormElements.status.textContent = message;
+}
