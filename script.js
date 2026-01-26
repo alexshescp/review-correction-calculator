@@ -21,6 +21,7 @@ Promise.all([
         updateRanges(); // Initialize ranges on load
         updateInputVisibility(); // Initialize input visibility
         applyUrlParams();
+        setTimeout(() => calculate(), 0);
     })
     .catch(error => console.error('Error loading JSON files:', error));
 
@@ -331,11 +332,11 @@ inputs.voiceConsultationQty.addEventListener('change', calculate);
 function toggleServices() {
     const services = document.getElementById('serviceInputs');
     const toggle = document.querySelector('.service-toggle');
-    if (services && toggle) {
-        services.classList.toggle('open');
-        toggle.classList.toggle('open');
-    }
+    const expanded = services.classList.toggle('open');
+    toggle.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', expanded);
 }
+
 
 function calculate() {
     const errorDiv = document.getElementById('error');
@@ -452,11 +453,19 @@ function calculate() {
     const totalCost = totalReviewCost + processingFee + transferPaymentCost +
         Object.values(serviceCosts).reduce((sum, cost) => sum + cost, 0);
 
-    resultDiv.innerHTML = translations[currentLang].result
+        const resultTemplate = translations[currentLang].result;
+        if (!resultTemplate) {
+        console.error(`Missing "result" translation for ${currentLang}`);
+        return;
+        }
+        resultDiv.innerHTML = resultTemplate
         .replace('{count}', `<strong>${newReviewsNeeded}</strong>`)
         .replace('{rating}', `<strong>${avgNewRating.toFixed(1)}</strong>`)
         .replace('{totalCost}', `<strong>${totalCost.toFixed(2)} ₽</strong>`);
-    resultDiv.style.display = 'block';
+    resultDiv.style.display = 'none';
+    requestAnimationFrame(() => {
+        resultDiv.style.display = 'block';
+    });
 
     return { newReviewsNeeded, avgNewRating, totalCost, serviceQuantities, serviceCosts, totalReviewCost, processingFee, transferPaymentCost };
 }
@@ -480,6 +489,7 @@ function calculateOrder(isFast) {
             errorDiv.style.display = 'block';
             return;
         }
+        const { newReviewsNeeded } = result;
         finalTransferPaymentCost = reservationCost * newReviewsNeeded;
     }
 
@@ -531,7 +541,7 @@ function generatePreliminaryPdf() {
     const preliminaryContext = buildOrderContext({
         result,
         isFast: false,
-        finalTransferPaymentCost: result.transferPaymentCost,
+        finalTransferPaymentCost: result.transferPaymentCost ?? 0,
         minMonths: null,
         maxMonths: null,
         totalCost: result.totalCost,
@@ -542,7 +552,7 @@ function generatePreliminaryPdf() {
 }
 
 // Close modal
-document.querySelector('.close')?.addEventListener('click', () => {
+document.querySelector('.close-button')?.addEventListener('click', () => {
     document.getElementById('orderModal').style.display = 'none';
 });
 
@@ -845,3 +855,10 @@ function setOrderStatus(type, message) {
     orderFormElements.status.className = `order-status ${type}`;
     orderFormElements.status.textContent = message;
 }
+
+// Add dark mode toggle
+const themeToggle = document.getElementById('themeToggle');
+themeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+    themeToggle.innerHTML = document.body.classList.contains('dark-mode') ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+});

@@ -4,222 +4,253 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Review Correction Calculator</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
-    <div class="calculator">
-        <div class="header">
-            <img src="logo-vr.png" alt="VR Reviews Logo" class="logo">
-            <div class="language-selector">
-                <select id="languageSelect">
-                    <option value="ru">Русский</option>
-                    <option value="en">English</option>
-                    <option value="de">Deutsch</option>
-                    <option value="fr">Français</option>
-                    <option value="it">Italiano</option>
-                    <option value="nl">Nederlands</option>
-                    <option value="pl">Polski</option>
-                    <option value="zh">中文</option>
-                    <option value="ar">العربية</option>
-                </select>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-left">
+                <img src="logo-vr.png" alt="VR Reviews Logo" class="logo">
+                <h1><i class="fas fa-star"></i> <span id="title">Калькулятор исправления отзывов</span></h1>
             </div>
-        </div>
+            <div class="header-right">
+                <div class="language-selector">
+                    <select id="languageSelect" aria-label="Select language">
+                        <option value="ru">Русский</option>
+                        <option value="en">English</option>
+                        <option value="de">Deutsch</option>
+                        <option value="fr">Français</option>
+                        <option value="it">Italiano</option>
+                        <option value="nl">Nederlands</option>
+                        <option value="pl">Polski</option>
+                        <option value="zh">中文</option>
+                        <option value="ar">العربية</option>
+                    </select>
+                </div>
+                <button id="themeToggle" aria-label="Toggle theme"><i class="fas fa-moon"></i></button>
+            </div>
+        </header>
         
-        <h1><i class="fas fa-star"></i> <span id="title">Калькулятор исправления отзывов</span></h1>
-        <div class="brand-banner">
-            <div class="brand-text">
-                <span id="brandLabel">Сервис «Ваша Репутация»</span>
-                <p id="brandSubtitle">Управление рейтингом объекта на 25+ платформах</p>
-            </div>
-            <a class="brand-link" href="https://yourep.ru" target="_blank" rel="noopener">
-                <span id="brandLinkLabel">yourep.ru</span>
-                <i class="fas fa-arrow-right"></i>
-            </a>
-        </div>
+        <main class="app-main">
+            <section class="hero-section glass-morph">
+                <div class="hero-content">
+                    <h2 id="brandLabel" class="hero-title">Сервис «Ваша Репутация»</h2>
+                    <p id="brandSubtitle" class="hero-subtitle">Управление рейтингом объекта на 25+ платформах</p>
+                    <a class="hero-link" href="https://yourep.ru" target="_blank" rel="noopener noreferrer" aria-label="Visit yourep.ru">
+                        <span id="brandLinkLabel">yourep.ru</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </section>
 
-        <section class="promo">
-            <div class="promo-header">
-                <h2 id="promoTitle">Промо-элементы</h2>
-                <p id="promoSubtitle">Готовые преимущества и быстрый старт</p>
-            </div>
-            <div class="promo-grid">
-                <div class="promo-card">
-                    <i class="fas fa-bolt"></i>
-                    <h3 id="promoItem1Title">Быстрый запуск</h3>
-                    <p id="promoItem1Text">Получите расчёт и заявку в Telegram за 2 минуты.</p>
+            <section class="promo-section">
+                <h3 id="promoTitle" class="section-title">Промо-элементы</h3>
+                <p id="promoSubtitle" class="section-subtitle">Готовые преимущества и быстрый старт</p>
+                <div class="promo-grid">
+                    <div class="promo-card glass-morph" tabindex="0" aria-label="Quick launch promo">
+                        <i class="fas fa-bolt promo-icon"></i>
+                        <h4 id="promoItem1Title" class="promo-card-title">Быстрый запуск</h4>
+                        <p id="promoItem1Text" class="promo-card-text">Получите расчёт и заявку в Telegram за 2 минуты.</p>
+                    </div>
+                    <div class="promo-card glass-morph" tabindex="0" aria-label="Request protection promo">
+                        <i class="fas fa-shield-alt promo-icon"></i>
+                        <h4 id="promoItem2Title" class="promo-card-title">Защита заявки</h4>
+                        <p id="promoItem2Text" class="promo-card-text">Поддержка идемпотентности и анти-DDoS SmartCaptcha.</p>
+                    </div>
+                    <div class="promo-card glass-morph" tabindex="0" aria-label="Structured report promo">
+                        <i class="fas fa-file-alt promo-icon"></i>
+                        <h4 id="promoItem3Title" class="promo-card-title">Структурированный отчёт</h4>
+                        <p id="promoItem3Text" class="promo-card-text">PDF с разделами затрат, сроков и доп. услуг.</p>
+                    </div>
                 </div>
-                <div class="promo-card">
-                    <i class="fas fa-shield-alt"></i>
-                    <h3 id="promoItem2Title">Защита заявки</h3>
-                    <p id="promoItem2Text">Поддержка идемпотентности и анти-DDoS SmartCaptcha.</p>
-                </div>
-                <div class="promo-card">
-                    <i class="fas fa-file-alt"></i>
-                    <h3 id="promoItem3Title">Структурированный отчёт</h3>
-                    <p id="promoItem3Text">PDF с разделами затрат, сроков и доп. услуг.</p>
-                </div>
-            </div>
-        </section>
-        
-        <div class="input-group" id="currentReviewsGroup">
-            <label for="currentReviews"><i class="fas fa-comment-alt"></i> <span id="currentReviewsLabel">Текущее количество отзывов (0-10000):</span></label>
-            <input type="number" id="currentReviews" min="0" max="10000" value="0">
-            <input type="range" id="currentReviewsRange" min="0" max="10000" value="0">
-            <div class="range-value" id="currentReviewsValue">0</div>
-        </div>
-        
-        <div class="input-group" id="maxRatingGroup" style="display: none;">
-            <label for="maxRating"><i class="fas fa-trophy"></i> <span id="maxRatingLabel">Максимальный балл (1-10):</span></label>
-            <input type="number" id="maxRating" min="1" max="10" step="0.1" value="10">
-            <input type="range" id="maxRatingRange" min="1" max="10" step="0.1" value="10">
-            <div class="range-value" id="maxRatingValue">10</div>
-        </div>
-        
-        <div class="input-group" id="currentRatingGroup" style="display: none;">
-            <label for="currentRating"><i class="fas fa-star-half-alt"></i> <span id="currentRatingLabel">Текущий балл (0-Макс):</span></label>
-            <input type="number" id="currentRating" min="0" max="10" step="0.1" value="0">
-            <input type="range" id="currentRatingRange" min="0" max="10" step="0.1" value="0">
-            <div class="range-value" id="currentRatingValue">0</div>
-        </div>
-        
-        <div class="input-group" id="targetRatingGroup" style="display: none;">
-            <label for="targetRating"><i class="fas fa-bullseye"></i> <span id="targetRatingLabel">Требуемый балл (0-Макс):</span></label>
-            <input type="number" id="targetRating" min="0" max="10" step="0.1" value="0">
-            <input type="range" id="targetRatingRange" min="0" max="10" step="0.1" value="0">
-            <div class="range-value" id="targetRatingValue">0</div>
-        </div>
-        
-        <div class="input-group" id="newRatingGroup" style="display: none;">
-            <label><i class="fas fa-sliders-h"></i> <span id="newRatingLabel">Допустимый уровень новых оценок:</span></label>
-            <div class="dual-input">
-                <div>
-                    <label for="newRatingMin" id="newRatingMinLabel">От:</label>
-                    <input type="number" id="newRatingMin" min="0" max="10" step="0.1" value="0">
-                </div>
-                <div>
-                    <label for="newRatingMax" id="newRatingMaxLabel">До:</label>
-                    <input type="number" id="newRatingMax" min="0" max="10" step="0.1" value="0">
-                </div>
-            </div>
-        </div>
-        
-        <div class="input-group" id="requiresReservationGroup" style="display: none;">
-            <label><i class="fas fa-hotel"></i> <span id="requiresReservationLabel">Платформа требует платных резервирований (например, отели):</span><input type="checkbox" id="requiresReservation"></label>
-        </div>
-        
-        <div class="input-group" id="reservationCostGroup" style="display: none;">
-            <label for="reservationCost"><i class="fas fa-ruble-sign"></i> <span id="reservationCostLabel">Средняя стоимость резервирования (₽):</span></label>
-            <input type="number" id="reservationCost" min="0" step="1" value="0">
-        </div>
-        
-        <div class="input-group">
-            <div class="service-toggle" onclick="toggleServices()">
-                <div class="toggle-text">
-                    <i class="fas fa-cogs"></i>
-                    <span id="additionalServicesLabel">Дополнительные услуги</span>
-                </div>
-                <i class="fas fa-chevron-right toggle-icon"></i>
-            </div>
-            <div class="service-inputs" id="serviceInputs">
-                <div class="input-group service-item">
-                    <label for="videoReviewQty"><i class="fas fa-video"></i> <span id="videoReviewLabel">Видео-обзор (0-50):</span><span class="service-price" id="videoReviewPrice"></span></label>
-                    <input type="number" id="videoReviewQty" min="0" max="50" value="0">
-                    <input type="range" id="videoReviewQtyRange" min="0" max="50" value="0">
-                    <div class="range-value" id="videoReviewQtyValue">0</div>
+            </section>
+
+            <section class="calculator-section glass-morph">
+                <div class="input-group" id="currentReviewsGroup">
+                    <label for="currentReviews"><i class="fas fa-comment-alt"></i> <span id="currentReviewsLabel">Текущее количество отзывов (0-10000):</span></label>
+                    <div class="input-wrapper">
+                        <input type="number" id="currentReviews" min="0" max="10000" value="0" aria-required="true" required>
+                        <div class="range-value" id="currentReviewsValue">0</div>
+                    </div>
+                    <input type="range" id="currentReviewsRange" min="0" max="10000" value="0" aria-label="Current reviews range">
                 </div>
                 
-                <div class="input-group service-item">
-                    <label for="exclusiveArticleQty"><i class="fas fa-file-alt"></i> <span id="exclusiveArticleLabel">Эксклюзивная статья (0-50):</span><span class="service-price" id="exclusiveArticlePrice"></span></label>
-                    <input type="number" id="exclusiveArticleQty" min="0" max="50" value="0">
-                    <input type="range" id="exclusiveArticleQtyRange" min="0" max="50" value="0">
-                    <div class="range-value" id="exclusiveArticleQtyValue">0</div>
+                <div class="input-group" id="maxRatingGroup" style="display: none;">
+                    <label for="maxRating"><i class="fas fa-trophy"></i> <span id="maxRatingLabel">Максимальный балл (1-10):</span></label>
+                    <div class="input-wrapper">
+                        <input type="number" id="maxRating" min="1" max="10" step="0.1" value="10" aria-required="true" required>
+                        <div class="range-value" id="maxRatingValue">10</div>
+                    </div>
+                    <input type="range" id="maxRatingRange" min="1" max="10" step="0.1" value="10" aria-label="Max rating range">
                 </div>
                 
-                <div class="input-group service-item">
-                    <label for="aiArticleQty"><i class="fas fa-robot"></i> <span id="aiArticleLabel">AI статья (0-100):</span><span class="service-price" id="aiArticlePrice"></span></label>
-                    <input type="number" id="aiArticleQty" min="0" max="100" value="0">
-                    <input type="range" id="aiArticleQtyRange" min="0" max="100" value="0">
-                    <div class="range-value" id="aiArticleQtyValue">0</div>
+                <div class="input-group" id="currentRatingGroup" style="display: none;">
+                    <label for="currentRating"><i class="fas fa-star-half-alt"></i> <span id="currentRatingLabel">Текущий балл (0-Макс):</span></label>
+                    <div class="input-wrapper">
+                        <input type="number" id="currentRating" min="0" max="10" step="0.1" value="0" aria-required="true" required>
+                        <div class="range-value" id="currentRatingValue">0</div>
+                    </div>
+                    <input type="range" id="currentRatingRange" min="0" max="10" step="0.1" value="0" aria-label="Current rating range">
                 </div>
                 
-                <div class="input-group service-item">
-                    <label for="articlePlacementQty"><i class="fas fa-share-alt"></i> <span id="articlePlacementLabel">Размещение статей/видео (0-50):</span><span class="service-price" id="articlePlacementPrice"></span></label>
-                    <input type="number" id="articlePlacementQty" min="0" max="50" value="0">
-                    <input type="range" id="articlePlacementQtyRange" min="0" max="50" value="0">
-                    <div class="range-value" id="articlePlacementQtyValue">0</div>
+                <div class="input-group" id="targetRatingGroup" style="display: none;">
+                    <label for="targetRating"><i class="fas fa-bullseye"></i> <span id="targetRatingLabel">Требуемый балл (0-Макс):</span></label>
+                    <div class="input-wrapper">
+                        <input type="number" id="targetRating" min="0" max="10" step="0.1" value="0" aria-required="true" required>
+                        <div class="range-value" id="targetRatingValue">0</div>
+                    </div>
+                    <input type="range" id="targetRatingRange" min="0" max="10" step="0.1" value="0" aria-label="Target rating range">
                 </div>
                 
-                <div class="input-group service-item">
-                    <label for="chatConsultationQty"><i class="fas fa-comments"></i> <span id="chatConsultationLabel">Консультация в чате:</span><span class="service-price" id="chatConsultationPrice"></span><input type="checkbox" id="chatConsultationQty"></label>
+                <div class="input-group" id="newRatingGroup" style="display: none;">
+                    <label><i class="fas fa-sliders-h"></i> <span id="newRatingLabel">Допустимый уровень новых оценок:</span></label>
+                    <div class="dual-input">
+                        <div>
+                            <label for="newRatingMin" id="newRatingMinLabel">От:</label>
+                            <input type="number" id="newRatingMin" min="0" max="10" step="0.1" value="0" aria-required="true" required>
+                        </div>
+                        <div>
+                            <label for="newRatingMax" id="newRatingMaxLabel">До:</label>
+                            <input type="number" id="newRatingMax" min="0" max="10" step="0.1" value="0" aria-required="true" required>
+                        </div>
+                    </div>
                 </div>
                 
-                <div class="input-group service-item">
-                    <label for="voiceConsultationQty"><i class="fas fa-phone"></i> <span id="voiceConsultationLabel">Голосовая консультация:</span><span class="service-price" id="voiceConsultationPrice"></span><input type="checkbox" id="voiceConsultationQty"></label>
+                <div class="input-group" id="requiresReservationGroup" style="display: none;">
+                    <label><i class="fas fa-hotel"></i> <span id="requiresReservationLabel">Платформа требует платных резервирований (например, отели):</span><input type="checkbox" id="requiresReservation" aria-label="Requires reservation"></label>
                 </div>
-            </div>
-        </div>
-        
-        <div id="error" class="error"></div>
-        
-        <div class="buttons">
-            <button class="organic"><i class="fas fa-leaf"></i> <span id="organicButton">Органическое исправление</span></button>
-            <button class="fast"><i class="fas fa-bolt"></i> <span id="fastButton">Стратегическая корректировка</span></button>
-        </div>
-        
-        <button id="downloadPdf"><i class="fas fa-download"></i> <span id="downloadPdfLabel">Скачать подсчёт улучшения рейтингов</span></button>
+                
+                <div class="input-group" id="reservationCostGroup" style="display: none;">
+                    <label for="reservationCost"><i class="fas fa-ruble-sign"></i> <span id="reservationCostLabel">Средняя стоимость резервирования (₽):</span></label>
+                    <input type="number" id="reservationCost" min="0" step="1" value="0" aria-required="true" required>
+                </div>
+                
+                <div class="input-group">
+                    <div class="service-toggle" onclick="toggleServices()" tabindex="0" role="button" aria-expanded="false" aria-controls="serviceInputs">
+                        <div class="toggle-text">
+                            <i class="fas fa-cogs"></i>
+                            <span id="additionalServicesLabel">Дополнительные услуги</span>
+                        </div>
+                        <i class="fas fa-chevron-right toggle-icon"></i>
+                    </div>
+                    <div class="service-inputs" id="serviceInputs">
+                        <div class="input-group service-item">
+                            <label for="videoReviewQty"><i class="fas fa-video"></i> <span id="videoReviewLabel">Видео-обзор (0-50):</span><span class="service-price" id="videoReviewPrice"></span></label>
+                            <div class="input-wrapper">
+                                <input type="number" id="videoReviewQty" min="0" max="50" value="0" aria-required="false">
+                                <div class="range-value" id="videoReviewQtyValue">0</div>
+                            </div>
+                            <input type="range" id="videoReviewQtyRange" min="0" max="50" value="0" aria-label="Video review quantity range">
+                        </div>
+                        
+                        <div class="input-group service-item">
+                            <label for="exclusiveArticleQty"><i class="fas fa-file-alt"></i> <span id="exclusiveArticleLabel">Эксклюзивная статья (0-50):</span><span class="service-price" id="exclusiveArticlePrice"></span></label>
+                            <div class="input-wrapper">
+                                <input type="number" id="exclusiveArticleQty" min="0" max="50" value="0" aria-required="false">
+                                <div class="range-value" id="exclusiveArticleQtyValue">0</div>
+                            </div>
+                            <input type="range" id="exclusiveArticleQtyRange" min="0" max="50" value="0" aria-label="Exclusive article quantity range">
+                        </div>
+                        
+                        <div class="input-group service-item">
+                            <label for="aiArticleQty"><i class="fas fa-robot"></i> <span id="aiArticleLabel">AI статья (0-100):</span><span class="service-price" id="aiArticlePrice"></span></label>
+                            <div class="input-wrapper">
+                                <input type="number" id="aiArticleQty" min="0" max="100" value="0" aria-required="false">
+                                <div class="range-value" id="aiArticleQtyValue">0</div>
+                            </div>
+                            <input type="range" id="aiArticleQtyRange" min="0" max="100" value="0" aria-label="AI article quantity range">
+                        </div>
+                        
+                        <div class="input-group service-item">
+                            <label for="articlePlacementQty"><i class="fas fa-share-alt"></i> <span id="articlePlacementLabel">Размещение статей/видео (0-50):</span><span class="service-price" id="articlePlacementPrice"></span></label>
+                            <div class="input-wrapper">
+                                <input type="number" id="articlePlacementQty" min="0" max="50" value="0" aria-required="false">
+                                <div class="range-value" id="articlePlacementQtyValue">0</div>
+                            </div>
+                            <input type="range" id="articlePlacementQtyRange" min="0" max="50" value="0" aria-label="Article placement quantity range">
+                        </div>
+                        
+                        <div class="input-group service-item checkbox-item">
+                            <label for="chatConsultationQty"><i class="fas fa-comments"></i> <span id="chatConsultationLabel">Консультация в чате:</span><span class="service-price" id="chatConsultationPrice"></span><input type="checkbox" id="chatConsultationQty" aria-label="Chat consultation"></label>
+                        </div>
+                        
+                        <div class="input-group service-item checkbox-item">
+                            <label for="voiceConsultationQty"><i class="fas fa-phone"></i> <span id="voiceConsultationLabel">Голосовая консультация:</span><span class="service-price" id="voiceConsultationPrice"></span><input type="checkbox" id="voiceConsultationQty" aria-label="Voice consultation"></label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="error" class="error-message"></div>
+                
+                <div class="action-buttons">
+                    <button class="action-button organic" aria-label="Organic correction"><i class="fas fa-leaf"></i> <span id="organicButton">Органическое исправление</span></button>
+                    <button class="action-button fast" aria-label="Strategic correction"><i class="fas fa-bolt"></i> <span id="fastButton">Стратегическая корректировка</span></button>
+                </div>
+                
+                <button id="downloadPdf" class="download-button" aria-label="Download PDF"><i class="fas fa-download"></i> <span id="downloadPdfLabel">Скачать подсчёт улучшения рейтингов</span></button>
+            </section>
+        </main>
     </div>
     
-    <div id="result"></div>
+    <div id="result" class="toast" role="alert" aria-live="polite"></div>
     
-    <div id="orderModal" class="modal">
-        <div class="modal-content">
-            <span class="close">×</span>
-            <h2 id="modalTitle">Сводка заказа</h2>
+    <div id="orderModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-content glass-morph">
+            <span class="close-button" role="button" aria-label="Close modal">×</span>
+            <h2 id="modalTitle" class="modal-title">Сводка заказа</h2>
             <div class="modal-grid">
                 <div class="modal-section">
-                    <h3 id="summaryTitle">Сводка расчёта</h3>
-                    <div id="orderSummary"></div>
+                    <h3 id="summaryTitle" class="section-title">Сводка расчёта</h3>
+                    <div id="orderSummary" class="summary-list"></div>
                     <div class="report-format">
-                        <h4 id="reportFormatTitle">Формат отчёта</h4>
-                        <ul id="reportFormatList"></ul>
+                        <h4 id="reportFormatTitle" class="subsection-title">Формат отчёта</h4>
+                        <ul id="reportFormatList" class="format-list"></ul>
                     </div>
-                    <button id="modalDownloadPdf"><i class="fas fa-download"></i> <span id="downloadPdfLabel">Скачать подсчёт улучшения рейтингов</span></button>
+                    <button id="modalDownloadPdf" class="download-button" aria-label="Download PDF from modal"><i class="fas fa-download"></i> <span id="downloadPdfLabel">Скачать подсчёт улучшения рейтингов</span></button>
                 </div>
                 <div class="modal-section">
-                    <h3 id="requestTitle">Заявка в Telegram</h3>
-                    <form id="orderForm">
-                        <label for="platformInput"><i class="fas fa-globe"></i> <span id="platformLabel">Площадка</span></label>
-                        <input type="text" id="platformInput" name="platform" required>
-
-                        <label for="discountInput"><i class="fas fa-tag"></i> <span id="discountLabel">Номер скидки</span></label>
-                        <input type="text" id="discountInput" name="discount" required>
-
-                        <label for="contactName"><i class="fas fa-user"></i> <span id="contactNameLabel">Контактное лицо</span></label>
-                        <input type="text" id="contactName" name="contactName" required>
-
-                        <label for="contactPhone"><i class="fas fa-phone"></i> <span id="contactPhoneLabel">Телефон</span></label>
-                        <input type="tel" id="contactPhone" name="contactPhone" required>
-
-                        <label for="contactTelegram"><i class="fab fa-telegram"></i> <span id="contactTelegramLabel">Telegram</span></label>
-                        <input type="text" id="contactTelegram" name="contactTelegram">
-
-                        <label for="contactEmail"><i class="fas fa-envelope"></i> <span id="contactEmailLabel">Email</span></label>
-                        <input type="email" id="contactEmail" name="contactEmail">
-
-                        <label for="captchaToken"><i class="fas fa-robot"></i> <span id="captchaLabel">Yandex SmartCaptcha Token</span></label>
-                        <input type="text" id="captchaToken" name="captchaToken" placeholder="smartcaptcha-token">
-
-                        <label for="orderComment"><i class="fas fa-comment-dots"></i> <span id="orderCommentLabel">Комментарий</span></label>
-                        <textarea id="orderComment" name="orderComment" rows="3"></textarea>
-
-                        <div class="form-actions">
-                            <button type="submit" id="submitOrderButton" class="fast"><i class="fas fa-paper-plane"></i> <span id="submitOrderLabel">Отправить заявку</span></button>
+                    <h3 id="requestTitle" class="section-title">Заявка в Telegram</h3>
+                    <form id="orderForm" class="order-form" aria-label="Order form">
+                        <div class="form-group">
+                            <label for="platformInput"><i class="fas fa-globe"></i> <span id="platformLabel">Площадка</span></label>
+                            <input type="text" id="platformInput" name="platform" required aria-required="true">
                         </div>
-                        <div id="orderStatus" class="order-status"></div>
+                        <div class="form-group">
+                            <label for="discountInput"><i class="fas fa-tag"></i> <span id="discountLabel">Номер скидки</span></label>
+                            <input type="text" id="discountInput" name="discount" required aria-required="true">
+                        </div>
+                        <div class="form-group">
+                            <label for="contactName"><i class="fas fa-user"></i> <span id="contactNameLabel">Контактное лицо</span></label>
+                            <input type="text" id="contactName" name="contactName" required aria-required="true">
+                        </div>
+                        <div class="form-group">
+                            <label for="contactPhone"><i class="fas fa-phone"></i> <span id="contactPhoneLabel">Телефон</span></label>
+                            <input type="tel" id="contactPhone" name="contactPhone" required aria-required="true">
+                        </div>
+                        <div class="form-group">
+                            <label for="contactTelegram"><i class="fab fa-telegram"></i> <span id="contactTelegramLabel">Telegram</span></label>
+                            <input type="text" id="contactTelegram" name="contactTelegram" aria-required="false">
+                        </div>
+                        <div class="form-group">
+                            <label for="contactEmail"><i class="fas fa-envelope"></i> <span id="contactEmailLabel">Email</span></label>
+                            <input type="email" id="contactEmail" name="contactEmail" aria-required="false">
+                        </div>
+                        <div class="form-group">
+                            <label for="captchaToken"><i class="fas fa-robot"></i> <span id="captchaLabel">Yandex SmartCaptcha Token</span></label>
+                            <input type="text" id="captchaToken" name="captchaToken" placeholder="smartcaptcha-token" aria-required="false">
+                        </div>
+                        <div class="form-group">
+                            <label for="orderComment"><i class="fas fa-comment-dots"></i> <span id="orderCommentLabel">Комментарий</span></label>
+                            <textarea id="orderComment" name="orderComment" rows="3" aria-required="false"></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" id="submitOrderButton" class="action-button fast" aria-label="Submit order"><i class="fas fa-paper-plane"></i> <span id="submitOrderLabel">Отправить заявку</span></button>
+                        </div>
+                        <div id="orderStatus" class="order-status" role="alert" aria-live="assertive"></div>
                     </form>
                 </div>
             </div>
