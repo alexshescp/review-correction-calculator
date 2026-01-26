@@ -36,40 +36,65 @@
         </header>
         
         <main class="app-main">
-            <section class="hero-section glass-morph">
+            <section class="hero-section">
                 <div class="hero-content">
+                    <div class="hero-pill">
+                        <i class="fas fa-sparkles"></i>
+                        <span>Reputation Intelligence</span>
+                    </div>
                     <h2 id="brandLabel" class="hero-title">Сервис «Ваша Репутация»</h2>
                     <p id="brandSubtitle" class="hero-subtitle">Управление рейтингом объекта на 25+ платформах</p>
-                    <a class="hero-link" href="https://yourep.ru" target="_blank" rel="noopener noreferrer" aria-label="Visit yourep.ru">
-                        <span id="brandLinkLabel">yourep.ru</span>
-                        <i class="fas fa-arrow-right"></i>
-                    </a>
+                    <div class="hero-actions">
+                        <a class="hero-link" href="https://yourep.ru" target="_blank" rel="noopener noreferrer" aria-label="Visit yourep.ru">
+                            <span id="brandLinkLabel">yourep.ru</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                        <button class="hero-secondary" type="button">
+                            <i class="fas fa-layer-group"></i>
+                            <span>Открыть калькулятор</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="hero-metrics" aria-label="Service highlights">
+                    <div class="metric-card">
+                        <div class="metric-title">25+</div>
+                        <div class="metric-text">Платформ под контролем</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-title">2 мин</div>
+                        <div class="metric-text">До первого расчёта</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-title">PDF</div>
+                        <div class="metric-text">Отчёт для клиента</div>
+                    </div>
                 </div>
             </section>
 
-            <section class="promo-section">
-                <h3 id="promoTitle" class="section-title">Промо-элементы</h3>
-                <p id="promoSubtitle" class="section-subtitle">Готовые преимущества и быстрый старт</p>
-                <div class="promo-grid">
-                    <div class="promo-card glass-morph" tabindex="0" aria-label="Quick launch promo">
-                        <i class="fas fa-bolt promo-icon"></i>
-                        <h4 id="promoItem1Title" class="promo-card-title">Быстрый запуск</h4>
-                        <p id="promoItem1Text" class="promo-card-text">Получите расчёт и заявку в Telegram за 2 минуты.</p>
+            <section class="content-grid">
+                <section class="promo-section">
+                    <h3 id="promoTitle" class="section-title">Промо-элементы</h3>
+                    <p id="promoSubtitle" class="section-subtitle">Готовые преимущества и быстрый старт</p>
+                    <div class="promo-grid">
+                        <div class="promo-card" tabindex="0" aria-label="Quick launch promo">
+                            <i class="fas fa-bolt promo-icon"></i>
+                            <h4 id="promoItem1Title" class="promo-card-title">Быстрый запуск</h4>
+                            <p id="promoItem1Text" class="promo-card-text">Получите расчёт и заявку в Telegram за 2 минуты.</p>
+                        </div>
+                        <div class="promo-card" tabindex="0" aria-label="Request protection promo">
+                            <i class="fas fa-shield-alt promo-icon"></i>
+                            <h4 id="promoItem2Title" class="promo-card-title">Защита заявки</h4>
+                            <p id="promoItem2Text" class="promo-card-text">Поддержка идемпотентности и анти-DDoS SmartCaptcha.</p>
+                        </div>
+                        <div class="promo-card" tabindex="0" aria-label="Structured report promo">
+                            <i class="fas fa-file-alt promo-icon"></i>
+                            <h4 id="promoItem3Title" class="promo-card-title">Структурированный отчёт</h4>
+                            <p id="promoItem3Text" class="promo-card-text">PDF с разделами затрат, сроков и доп. услуг.</p>
+                        </div>
                     </div>
-                    <div class="promo-card glass-morph" tabindex="0" aria-label="Request protection promo">
-                        <i class="fas fa-shield-alt promo-icon"></i>
-                        <h4 id="promoItem2Title" class="promo-card-title">Защита заявки</h4>
-                        <p id="promoItem2Text" class="promo-card-text">Поддержка идемпотентности и анти-DDoS SmartCaptcha.</p>
-                    </div>
-                    <div class="promo-card glass-morph" tabindex="0" aria-label="Structured report promo">
-                        <i class="fas fa-file-alt promo-icon"></i>
-                        <h4 id="promoItem3Title" class="promo-card-title">Структурированный отчёт</h4>
-                        <p id="promoItem3Text" class="promo-card-text">PDF с разделами затрат, сроков и доп. услуг.</p>
-                    </div>
-                </div>
-            </section>
+                </section>
 
-            <section class="calculator-section glass-morph">
+                <section class="calculator-section">
                 <div class="input-group" id="currentReviewsGroup">
                     <label for="currentReviews"><i class="fas fa-comment-alt"></i> <span id="currentReviewsLabel">Текущее количество отзывов (0-10000):</span></label>
                     <div class="input-wrapper">
