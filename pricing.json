@@ -3,36 +3,36 @@
     "reviewCosts": {
         "tier1": {
             "maxReviews": 99,
-            "costPerReview": 440
+            "costPerReview": 418
         },
         "tier2": {
             "maxReviews": 499,
-            "costPerReview": 360
+            "costPerReview": 342
         },
         "tier3": {
             "maxReviews": 999,
-            "costPerReview": 320
+            "costPerReview": 304
         },
         "tier4": {
             "maxReviews": null,
-            "costPerReview": 280
+            "costPerReview": 266
         }
     },
     "processingFee": {
-        "base": 4000,
+        "base": 3801,
         "percentagePerReview": 0.08
     },
     "hotelBookingFee": {
         "reviewsCount": 10,
-        "percentage": 0.6
+        "percentage": 0.3
     },
     "additionalServices": {
-        "videoReview": 24000,
-        "exclusiveArticle": 12000,
-        "aiArticle": 2400,
-        "articlePlacement": 800,
-        "chatConsultation": 4000,
-        "voiceConsultation": 8000
+        "videoReview": 27086,
+        "exclusiveArticle": 13543,
+        "aiArticle": 2709,
+        "articlePlacement": 903,
+        "chatConsultation": 3801,
+        "voiceConsultation": 7601
     },
     "originalCurrencies": {
         "USD": {
@@ -44,7 +44,7 @@
             },
             "processingFee": {
                 "base": 50,
-                "percentagePerReview": 0.001
+                "percentagePerReview": 0.08
             },
             "chatConsultation": 50,
             "voiceConsultation": 100
@@ -57,7 +57,7 @@
         }
     },
     "conversionRate": {
-        "USD": 80,
-        "EUR": 80
+        "USD": 76.0101,
+        "EUR": 90.2877
     }
 }

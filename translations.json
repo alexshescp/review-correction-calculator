@@ -1,6 +1,7 @@
 {
   "ru": {
     "title": "Калькулятор исправления отзывов",
+    "calculatorSubtitle": "Введите данные для расчёта",
     "currentReviewsLabel": "Текущее количество отзывов (0-10000):",
     "maxRatingLabel": "Максимальный балл (1-10):",
     "currentRatingLabel": "Текущий балл (0-Макс):",
@@ -83,9 +84,11 @@
     "pdfHeaderSubtitle": "Сервис управления репутацией",
     "pdfHeaderNote": "Подробности в Telegram",
     "submitSuccess": "Заявка отправлена успешно!",
+    "sendingStatus": "Отправка...",
     "submitError": "Ошибка отправки заявки",
+    "redirectingPayment": "Переход к оплате...",
     "objectNameLabel": "Название объекта",
-    "objectAddressLabel": "Ссылка на объект (URL)",
+    "objectAddressLabel": "Ссылки на объекты (URL)",
     "payOnlineButton": "Оплатить онлайн (-20%)",
     "orderNoPrepayButton": "Заказать без предоплаты",
     "enterDetailsForPdf": "Введите название и ссылку для скачивания PDF",
@@ -94,11 +97,12 @@
     "googleCaptchaLabel": "Подтвердите действие",
     "headerPriceLabel": "Текущий расчёт:",
     "serviceTotalLabel": "Стоимость услуг:",
-    "reserveTotalLabel": "Возвратный резерв:",
+    "reserveTotalLabel": "Возвратный резерв (возвращается):",
     "totalPayLabel": "Итого:"
   },
   "en": {
     "title": "Review Correction Calculator",
+    "calculatorSubtitle": "Enter data for calculation",
     "currentReviewsLabel": "Current number of reviews (0-10000):",
     "maxRatingLabel": "Maximum score (1-10):",
     "currentRatingLabel": "Current score (0-Max):",
@@ -181,18 +185,23 @@
     "pdfHeaderSubtitle": "Reputation management service",
     "pdfHeaderNote": "Details in Telegram",
     "submitSuccess": "Request sent successfully!",
+    "sendingStatus": "Sending...",
     "submitError": "Error sending request",
+    "redirectingPayment": "Redirecting to payment...",
     "metric1": "Platforms",
     "metric2": "Calculation",
     "metric3": "PDF Report",
     "objectNameLabel": "Company Name",
-    "objectAddressLabel": "Platform URL",
+    "objectAddressLabel": "Object URLs",
     "payOnlineButton": "Pay Online (-20%)",
     "orderNoPrepayButton": "Order (No Prepayment)",
     "enterDetailsForPdf": "Enter name and URL to download PDF",
     "pdfReportTitle": "Commercial Proposal",
     "pdfReportSubtitle": "Reputation Management",
     "googleCaptchaLabel": "Verify you are human",
-    "headerPriceLabel": "Current Calculation:"
+    "headerPriceLabel": "Current Calculation:",
+    "serviceTotalLabel": "Service Cost:",
+    "reserveTotalLabel": "Refundable Reserve (returned):",
+    "totalPayLabel": "Total:"
   }
 }
