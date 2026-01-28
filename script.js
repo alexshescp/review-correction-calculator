@@ -680,10 +680,7 @@ function setupEventListeners() {
             status.style.color = "#2563eb";
         }
         if (paymentUrl) {
-            const newWindow = window.open(paymentUrl, '_blank', 'noopener');
-            if (!newWindow) {
-                window.location.href = paymentUrl;
-            }
+            window.location.assign(paymentUrl);
         }
     });
 
