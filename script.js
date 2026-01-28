@@ -65,6 +65,7 @@ let translations = {
         "submitError": "Не удалось отправить заявку. Попробуйте ещё раз.",
         "orderStatusTitle": "Статус заявки",
         "orderStatusClose": "Понятно",
+        "orderNumberLabel": "Номер заказа",
         "emailRequiredError": "Укажите корректный email для связи.",
         "paymentModalTitle": "Статус оплаты",
         "paymentProcessingTitle": "Переходим к оплате",
@@ -192,6 +193,7 @@ let translations = {
         "submitError": "Failed to send the request. Please try again.",
         "orderStatusTitle": "Request status",
         "orderStatusClose": "Got it",
+        "orderNumberLabel": "Order number",
         "emailRequiredError": "Please provide a valid email address.",
         "paymentModalTitle": "Payment status",
         "paymentProcessingTitle": "Redirecting to payment",
@@ -658,7 +660,7 @@ function setupEventListeners() {
 
     document.getElementById('modalDownloadPdf')?.addEventListener('click', prepareAndPrint);
 
-    document.getElementById('payOnlineButton')?.addEventListener('click', () => {
+    document.getElementById('payOnlineButton')?.addEventListener('click', async () => {
         const lang = document.documentElement.lang;
         const t = translations[lang] || translations.ru;
         const button = document.getElementById('payOnlineButton');
@@ -679,8 +681,28 @@ function setupEventListeners() {
             status.textContent = t.redirectingPayment || "Redirecting to online payment...";
             status.style.color = "#2563eb";
         }
-        if (paymentUrl) {
-            window.location.assign(paymentUrl);
+
+        try {
+            const paymentPayload = buildOrderPayload('online_payment', 'payment_initiated');
+            paymentPayload.paymentInitiatedAt = new Date().toISOString();
+            const response = await sendOrderAction(paymentPayload);
+            if (response.orderNumber) {
+                currentOrderContext.orderNumber = response.orderNumber;
+            }
+            const paymentRedirectUrl = buildPaymentUrl(paymentUrl, paymentPayload);
+            if (paymentRedirectUrl) {
+                window.location.assign(paymentRedirectUrl);
+            }
+        } catch (error) {
+            if (status) {
+                status.textContent = t.submitError || "Ошибка отправки заявки.";
+                status.style.color = "#dc2626";
+            }
+            setOrderStatusOverlay({
+                type: 'error',
+                message: t.submitError || "Ошибка отправки заявки."
+            });
+            console.error(error);
         }
     });
 
@@ -849,10 +871,14 @@ function collectServiceQuantities() {
     };
 }
 
-function buildOrderPayload(orderType) {
+function buildOrderPayload(orderType, action = 'order_submission') {
     const calculation = calculate();
+    const orderMeta = getOrderMeta();
     const payload = {
+        action,
         orderType,
+        orderNumber: orderMeta.orderNumber,
+        orderCreatedAt: orderMeta.orderCreatedAt,
         objectName: document.getElementById('objectName')?.value.trim() || '',
         objectAddress: document.getElementById('objectAddress')?.value.trim() || '',
         discountNumber: document.getElementById('discountInput')?.value.trim() || '',
@@ -879,11 +905,93 @@ function buildOrderPayload(orderType) {
     return payload;
 }
 
+async function sendOrderAction(payload) {
+    const response = await fetch('send_order.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Idempotency-Key': createIdempotencyKey()
+        },
+        body: JSON.stringify(payload)
+    });
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok || data.status !== 'ok') {
+        throw new Error(data.message || 'Request failed');
+    }
+
+    return data;
+}
+
+function buildPaymentUrl(baseUrl, payload) {
+    if (!baseUrl) return '';
+    let url;
+    try {
+        url = new URL(baseUrl);
+    } catch (error) {
+        return baseUrl;
+    }
+
+    const metadata = {
+        orderNumber: payload.orderNumber,
+        orderType: payload.orderType,
+        orderCreatedAt: payload.orderCreatedAt,
+        objectName: payload.objectName,
+        objectAddress: payload.objectAddress,
+        contactName: payload.contactName,
+        contactPhone: payload.contactPhone,
+        contactEmail: payload.contactEmail,
+        contactTelegram: payload.contactTelegram,
+        totalCost: payload.calculation?.totalCost ?? null,
+        strategy: payload.strategy,
+        discountNumber: payload.discountNumber
+    };
+
+    url.searchParams.set('orderNumber', payload.orderNumber || '');
+    url.searchParams.set('orderType', payload.orderType || '');
+    if (payload.calculation?.totalCost) {
+        url.searchParams.set('amount', String(payload.calculation.totalCost));
+    }
+    url.searchParams.set('metadata', JSON.stringify(metadata));
+
+    return url.toString();
+}
+
 function createIdempotencyKey() {
     if (window.crypto?.randomUUID) {
         return window.crypto.randomUUID();
     }
     return `order_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+}
+
+function generateOrderNumber(date = new Date()) {
+    const letters = 'АБВГДЕЖЗИКЛМНОПРСТУФХЦЧШЩЫЭЮЯ';
+    const digits = '0123456789';
+    const alphabet = letters + digits;
+    const pad = value => String(value).padStart(2, '0');
+    const day = pad(date.getDate());
+    const month = pad(date.getMonth() + 1);
+    const year = String(date.getFullYear());
+    let code = '';
+    for (let i = 0; i < 5; i += 1) {
+        code += alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+    }
+    return `${day}${month}${year}-${code}`;
+}
+
+function getOrderMeta() {
+    if (!currentOrderContext) {
+        return { orderNumber: '', orderCreatedAt: '' };
+    }
+    if (!currentOrderContext.orderNumber) {
+        const createdAt = new Date();
+        currentOrderContext.orderNumber = generateOrderNumber(createdAt);
+        currentOrderContext.orderCreatedAt = createdAt.toISOString();
+    }
+    return {
+        orderNumber: currentOrderContext.orderNumber,
+        orderCreatedAt: currentOrderContext.orderCreatedAt || ''
+    };
 }
 
 function updateInputVisibility() {
@@ -1036,13 +1144,21 @@ function showSummary(isFast) {
 
     const lang = document.documentElement.lang;
     const t = translations[lang] || translations.ru;
-    currentOrderContext = { result, isFast };
+    const createdAt = new Date();
+    currentOrderContext = {
+        result,
+        isFast,
+        orderNumber: generateOrderNumber(createdAt),
+        orderCreatedAt: createdAt.toISOString()
+    };
+    const orderMeta = getOrderMeta();
 
     const summaryEl = document.getElementById('orderSummary');
     if (summaryEl) {
         summaryEl.innerHTML = `
             <div class="summary-section">
                 <table class="summary-table">
+                    <tr><td>${t.orderNumberLabel}</td><td>${orderMeta.orderNumber}</td></tr>
                     <tr><td>${t.newReviewsNeeded}</td><td>${result.needed}</td></tr>
                     <tr><td>${t.averageRating}</td><td>${result.avgNew.toFixed(1)}</td></tr>
                     <tr><td>${t.reviewCost}</td><td>${result.reviewCostTotal.toFixed(0)}₽</td></tr>
@@ -1088,6 +1204,7 @@ function prepareAndPrint() {
     const lang = document.documentElement.lang;
     const t = translations[lang] || translations.ru;
     const r = currentOrderContext.result;
+    const orderMeta = getOrderMeta();
 
     const name = document.getElementById('objectName')?.value.trim() || '—';
     const address = document.getElementById('objectAddress')?.value.trim() || '—';
@@ -1095,9 +1212,16 @@ function prepareAndPrint() {
     const phone = document.getElementById('contactPhone')?.value.trim() || '—';
     const email = document.getElementById('contactEmail')?.value.trim() || '—';
     const telegram = document.getElementById('contactTelegram')?.value.trim() || '—';
+    const pdfDownloadedAt = new Date().toISOString();
 
     const container = document.getElementById('printSummaryContainer');
     if (!container) return;
+
+    const pdfPayload = buildOrderPayload('pdf_download', 'pdf_download');
+    pdfPayload.pdfDownloadedAt = pdfDownloadedAt;
+    sendOrderAction(pdfPayload).catch(error => {
+        console.error('Failed to notify PDF download:', error);
+    });
 
     // Очищаем контейнер и удаляем старые стили
     container.innerHTML = '';
@@ -1201,6 +1325,9 @@ function prepareAndPrint() {
             <div class="print-meta-row">
                 <div class="document-date">
                     <strong>Date:</strong> ${formattedDate}
+                    <div class="document-order">
+                        <strong>${t.orderNumberLabel}:</strong> ${orderMeta.orderNumber}
+                    </div>
                 </div>
                 <!-- ID/QR можно добавить сюда если нужно, но QR у нас был в шапке. --> 
                 <!-- Добавим QR код справа -->
@@ -1254,7 +1381,7 @@ function prepareAndPrint() {
             <div class="calculation-section">
                 <div class="section-header">
                     <h2>${t.pdfCalculationDetailsTitle}</h2>
-                    <div class="document-id">ID: ${Date.now().toString(36).toUpperCase()}</div>
+                    <div class="document-id">ID: ${orderMeta.orderNumber}</div>
                 </div>
                 
                 <table class="calculation-table">
@@ -1814,7 +1941,7 @@ document.getElementById('orderForm')?.addEventListener('submit', async e => {
         return;
     }
 
-    const payload = buildOrderPayload('no_prepay');
+    const payload = buildOrderPayload('no_prepay', 'order_submission');
     const captchaToken = window.grecaptcha?.getResponse?.() || '';
     if (captchaToken) {
         payload.captchaToken = captchaToken;
@@ -1826,18 +1953,9 @@ document.getElementById('orderForm')?.addEventListener('submit', async e => {
     }
 
     try {
-        const response = await fetch('send_order.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Idempotency-Key': createIdempotencyKey()
-            },
-            body: JSON.stringify(payload)
-        });
-        const data = await response.json().catch(() => ({}));
-
-        if (!response.ok || data.status !== 'ok') {
-            throw new Error(data.message || 'Request failed');
+        const data = await sendOrderAction(payload);
+        if (data.orderNumber) {
+            currentOrderContext.orderNumber = data.orderNumber;
         }
 
         if (status) {
