@@ -92,6 +92,7 @@ let translations = {
         "pdfReportSubtitle": "Управление репутацией",
         "payOnlineButton": "Оплатить онлайн (-20%)",
         "orderNoPrepayButton": "Заказать без предоплаты",
+        "offerNoticeText": "Нажимая любую кнопку, вы подтверждаете ознакомление с офертой",
         "headerPriceLabel": "Текущий расчёт:",
         "contactNameLabel": "Имя",
         "contactPhoneLabel": "Телефон",
@@ -107,6 +108,7 @@ let translations = {
         "pdfEmailLabel": "Email:",
         "pdfTelegramLabel": "Telegram:",
         "pdfCalculationDetailsTitle": "Детализация расчета",
+        "pdfCalculationDetailsIdLabel": "ID расчета",
         "pdfServiceCol": "Услуга",
         "pdfQtyCol": "Кол-во",
         "pdfPriceCol": "Цена за ед.",
@@ -220,6 +222,7 @@ let translations = {
         "pdfReportSubtitle": "Reputation Management",
         "payOnlineButton": "Pay Online (-20%)",
         "orderNoPrepayButton": "Order without prepayment",
+        "offerNoticeText": "By clicking any button, you confirm you have read the offer",
         "headerPriceLabel": "Current calculation:",
         "contactNameLabel": "Name",
         "contactPhoneLabel": "Phone",
@@ -235,6 +238,7 @@ let translations = {
         "pdfEmailLabel": "Email:",
         "pdfTelegramLabel": "Telegram:",
         "pdfCalculationDetailsTitle": "Calculation Details",
+        "pdfCalculationDetailsIdLabel": "Calculation Details ID",
         "pdfServiceCol": "Service",
         "pdfQtyCol": "Qty",
         "pdfPriceCol": "Unit Price",
@@ -421,6 +425,7 @@ function updateLanguage(lang) {
         'pdfReportSubtitle': 'pdfReportSubtitle',
         'payOnlineButtonLabel': 'payOnlineButton',
         'orderNoPrepayButton': 'orderNoPrepayButton',
+        'offerNoticeText': 'offerNoticeText',
         'promoItem1Title': 'promoItem1Title',
         'promoItem1Text': 'promoItem1Text',
         'promoItem2Title': 'promoItem2Title',
@@ -1381,7 +1386,7 @@ function prepareAndPrint() {
             <div class="calculation-section">
                 <div class="section-header">
                     <h2>${t.pdfCalculationDetailsTitle}</h2>
-                    <div class="document-id">ID: ${orderMeta.orderNumber}</div>
+                    <div class="document-id">${t.pdfCalculationDetailsIdLabel}: ${orderMeta.orderNumber}</div>
                 </div>
                 
                 <table class="calculation-table">
