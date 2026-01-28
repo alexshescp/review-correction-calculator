@@ -572,20 +572,51 @@ function handlePaymentReturn() {
     window.history.replaceState({}, '', url.toString());
 }
 
+function getCookieConsent() {
+    try {
+        return localStorage.getItem('cookieConsent');
+    } catch (error) {
+        console.warn('Cookie consent storage недоступно.', error);
+        return null;
+    }
+}
+
+function setCookieConsent(value) {
+    try {
+        localStorage.setItem('cookieConsent', value);
+    } catch (error) {
+        console.warn('Cookie consent storage недоступно.', error);
+    }
+}
+
+function clearCookieConsent() {
+    try {
+        localStorage.removeItem('cookieConsent');
+    } catch (error) {
+        console.warn('Cookie consent storage недоступно.', error);
+    }
+}
+
+function showCookieNotice(force = false) {
+    const notice = document.getElementById('cookieNotice');
+    if (!notice) return;
+    notice.classList.remove('hidden');
+    if (force) {
+        notice.classList.remove('visible');
+    }
+    setTimeout(() => {
+        notice.classList.add('visible');
+    }, 100);
+}
+
 function initCookieNotice() {
     const notice = document.getElementById('cookieNotice');
     if (!notice) return;
 
-    // Check if user has already made a choice
-    const consent = localStorage.getItem('cookieConsent');
+    const consent = getCookieConsent();
 
-    // If no choice made yet, show notice
     if (!consent) {
-        notice.classList.remove('hidden');
-        // Small delay for animation
-        setTimeout(() => {
-            notice.classList.add('visible');
-        }, 100);
+        showCookieNotice();
     } else {
         notice.classList.add('hidden');
     }
@@ -601,13 +632,18 @@ function getCheck(id) {
 
 function setupEventListeners() {
     document.getElementById('cookieNoticeAccept')?.addEventListener('click', () => {
-        localStorage.setItem('cookieConsent', 'accepted');
+        setCookieConsent('accepted');
         hideCookieNotice();
     });
 
     document.getElementById('cookieNoticeDecline')?.addEventListener('click', () => {
-        localStorage.setItem('cookieConsent', 'declined');
+        setCookieConsent('declined');
         hideCookieNotice();
+    });
+
+    document.getElementById('cookieSettingsButton')?.addEventListener('click', () => {
+        clearCookieConsent();
+        showCookieNotice(true);
     });
 
     const inputsWithRanges = ['currentReviews', 'maxRating', 'currentRating', 'targetRating', 'videoReviewQty', 'exclusiveArticleQty', 'aiArticleQty', 'articlePlacementQty'];
