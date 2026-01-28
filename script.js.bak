@@ -1498,13 +1498,3 @@ document.getElementById('orderForm')?.addEventListener('submit', e => {
         }, 1500);
     }
 });
-
-function hideCookieNotice() {
-    const notice = document.getElementById('cookieNotice');
-    if (notice) {
-        notice.classList.remove('visible');
-        setTimeout(() => {
-            notice.classList.add('hidden');
-        }, 300);
-    }
-}
