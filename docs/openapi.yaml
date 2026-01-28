@@ -1,0 +1,180 @@
+openapi: 3.0.3
+info:
+  title: Review Correction Calculator API
+  version: 1.0.0
+  description: >
+    Спецификация для интеграций калькулятора с YouPay, Telegram и email-уведомлениями.
+servers:
+  - url: https://yourep.ru
+paths:
+  /send_order.php:
+    post:
+      summary: Отправка заявки на расчёт
+      description: >
+        Создает заявку, отправляет уведомление в Telegram и письмо клиенту. Поддерживает идемпотентность.
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          description: Ключ идемпотентности для защиты от повторных запросов.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderRequest'
+      responses:
+        '200':
+          description: Успешная обработка заявки.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponse'
+        '400':
+          description: Ошибка валидации входных данных.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '502':
+          description: Ошибка при отправке уведомлений.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /payments/return:
+    get:
+      summary: Возврат после оплаты YouPay
+      description: >
+        Возврат пользователя после оплаты. Используется фронтендом для отображения статуса оплаты.
+      parameters:
+        - in: query
+          name: payment_status
+          required: true
+          schema:
+            type: string
+            enum: [success, failed, canceled]
+      responses:
+        '200':
+          description: Статус обработан на фронтенде.
+  /payments/webhook:
+    post:
+      summary: Вебхук YouPay
+      description: >
+        Серверный вебхук для подтверждения статуса платежа и отправки уведомлений.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentWebhook'
+      responses:
+        '200':
+          description: Подтверждено.
+        '400':
+          description: Некорректный запрос.
+components:
+  schemas:
+    OrderRequest:
+      type: object
+      required:
+        - objectName
+        - objectAddress
+        - contactEmail
+      properties:
+        orderType:
+          type: string
+          enum: [no_prepay, online_payment]
+        objectName:
+          type: string
+        objectAddress:
+          type: string
+        discountNumber:
+          type: string
+        contactName:
+          type: string
+        contactPhone:
+          type: string
+        contactEmail:
+          type: string
+          format: email
+        contactTelegram:
+          type: string
+        comment:
+          type: string
+        strategy:
+          type: string
+          enum: [organic, fast]
+        captchaToken:
+          type: string
+        calculation:
+          $ref: '#/components/schemas/Calculation'
+    Calculation:
+      type: object
+      properties:
+        currentReviews:
+          type: number
+        maxRating:
+          type: number
+        currentRating:
+          type: number
+        targetRating:
+          type: number
+        newRatingMin:
+          type: number
+        newRatingMax:
+          type: number
+        requiresReservation:
+          type: boolean
+        reservationCost:
+          type: number
+        serviceQuantities:
+          $ref: '#/components/schemas/ServiceQuantities'
+        totalCost:
+          type: number
+    ServiceQuantities:
+      type: object
+      properties:
+        videoReview:
+          type: number
+        exclusiveArticle:
+          type: number
+        aiArticle:
+          type: number
+        articlePlacement:
+          type: number
+        chatConsultation:
+          type: number
+        voiceConsultation:
+          type: number
+    OrderResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [ok]
+        duplicate:
+          type: boolean
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [error]
+        message:
+          type: string
+    PaymentWebhook:
+      type: object
+      properties:
+        paymentId:
+          type: string
+        status:
+          type: string
+          enum: [success, failed, canceled]
+        amount:
+          type: number
+        currency:
+          type: string
+        metadata:
+          type: object

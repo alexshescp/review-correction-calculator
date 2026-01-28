@@ -61,6 +61,22 @@ let translations = {
         "orderSuccessMessage": "Ожидайте — с вами свяжется менеджер. Хотите сделать ещё один расчёт или оформить новую заявку?",
         "newCalculationButton": "Сделать новый расчёт",
         "newOrderButton": "Оформить ещё одну заявку",
+        "sendingStatus": "Отправляем заявку...",
+        "submitError": "Не удалось отправить заявку. Попробуйте ещё раз.",
+        "emailRequiredError": "Укажите корректный email для связи.",
+        "paymentModalTitle": "Статус оплаты",
+        "paymentProcessingTitle": "Переходим к оплате",
+        "paymentProcessingMessage": "Мы перенаправим вас в платёжную систему. После оплаты вернитесь на страницу.",
+        "paymentSuccessTitle": "Оплата прошла успешно",
+        "paymentSuccessMessage": "Мы получили оплату и начали обработку заявки. В ближайшее время свяжемся с вами.",
+        "paymentFailureTitle": "Оплата не прошла",
+        "paymentFailureMessage": "Платёж не подтверждён или был отменён. Вы можете попробовать снова.",
+        "paymentPrimaryProcessing": "Понятно",
+        "paymentPrimarySuccess": "Новый расчёт",
+        "paymentPrimaryFailure": "Попробовать снова",
+        "paymentSecondaryProcessing": "Вернуться к заявке",
+        "paymentSecondarySuccess": "Новая заявка",
+        "paymentSecondaryFailure": "Новый расчёт",
         "cookieNoticeTitle": "Мы используем cookies",
         "cookieNoticeText": "Этот сайт использует файлы cookie для хранения данных. Продолжая использовать сайт, вы даете согласие на работу с этими файлами.",
         "cookieNoticeAccept": "Принять",
@@ -170,6 +186,22 @@ let translations = {
         "orderSuccessMessage": "Please wait — our manager will contact you. Want another calculation or a new request?",
         "newCalculationButton": "Make another calculation",
         "newOrderButton": "Submit another request",
+        "sendingStatus": "Sending request...",
+        "submitError": "Failed to send the request. Please try again.",
+        "emailRequiredError": "Please provide a valid email address.",
+        "paymentModalTitle": "Payment status",
+        "paymentProcessingTitle": "Redirecting to payment",
+        "paymentProcessingMessage": "We'll redirect you to the payment system. Return after completing the payment.",
+        "paymentSuccessTitle": "Payment successful",
+        "paymentSuccessMessage": "We received your payment and started processing your request.",
+        "paymentFailureTitle": "Payment failed",
+        "paymentFailureMessage": "Payment was not confirmed or was cancelled. You can try again.",
+        "paymentPrimaryProcessing": "Got it",
+        "paymentPrimarySuccess": "New calculation",
+        "paymentPrimaryFailure": "Try again",
+        "paymentSecondaryProcessing": "Back to request",
+        "paymentSecondarySuccess": "New request",
+        "paymentSecondaryFailure": "New calculation",
         "cookieNoticeTitle": "We use cookies",
         "cookieNoticeText": "This website uses cookies to store data. By continuing to use the site, you consent to the use of these files.",
         "cookieNoticeAccept": "Accept",
@@ -238,6 +270,7 @@ async function loadPricing() {
 }
 
 let currentOrderContext = null;
+let paymentState = 'processing';
 
 // DOMContentLoaded handled above to wait for pricing
 
@@ -249,6 +282,8 @@ function initApp() {
     updateInputVisibility();
     updateNewRatingMinMax();
     calculate();
+    ensureOrderState();
+    handlePaymentReturn();
 }
 
 function initializeLanguage() {
@@ -264,6 +299,35 @@ function initializeLanguage() {
         updateLanguage(lang);
         select.addEventListener('change', e => updateLanguage(e.target.value));
     }
+}
+
+function ensureOrderState() {
+    const successNotice = document.getElementById('orderSuccessNotice');
+    if (successNotice) {
+        successNotice.hidden = true;
+    }
+    setPaymentState('processing');
+}
+
+function openModal(id) {
+    const modal = document.getElementById(id);
+    if (modal) {
+        modal.classList.add('open');
+        updateModalOpenState();
+    }
+}
+
+function closeModal(id) {
+    const modal = document.getElementById(id);
+    if (modal) {
+        modal.classList.remove('open');
+        updateModalOpenState();
+    }
+}
+
+function updateModalOpenState() {
+    const hasOpenModal = !!document.querySelector('.modal-overlay.open');
+    document.body.classList.toggle('modal-open', hasOpenModal);
 }
 
 function updateLanguage(lang) {
@@ -333,7 +397,8 @@ function updateLanguage(lang) {
         'orderSuccessTitle': 'orderSuccessTitle',
         'orderSuccessMessage': 'orderSuccessMessage',
         'newCalculationButton': 'newCalculationButton',
-        'newOrderButton': 'newOrderButton'
+        'newOrderButton': 'newOrderButton',
+        'paymentModalTitle': 'paymentModalTitle'
     };
 
     Object.entries(map).forEach(([id, key]) => setText(id, key));
@@ -360,6 +425,100 @@ function updateLanguage(lang) {
     updatePrice('voiceConsultationPrice', pricing.additionalServices.voiceConsultation);
 
     calculate();
+    setPaymentState(paymentState);
+}
+
+function setPaymentState(state) {
+    const lang = document.documentElement.lang;
+    const t = translations[lang] || translations.ru;
+    paymentState = state;
+
+    const iconEl = document.getElementById('paymentStateIcon');
+    const titleEl = document.getElementById('paymentStateTitle');
+    const messageEl = document.getElementById('paymentStateMessage');
+
+    if (iconEl) {
+        iconEl.className = 'payment-status-icon';
+        if (state === 'success') {
+            iconEl.classList.add('success');
+            iconEl.innerHTML = '<i class="fas fa-check"></i>';
+        } else if (state === 'failure') {
+            iconEl.classList.add('failure');
+            iconEl.innerHTML = '<i class="fas fa-times"></i>';
+        } else {
+            iconEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        }
+    }
+
+    if (titleEl) {
+        titleEl.textContent = state === 'success'
+            ? t.paymentSuccessTitle
+            : state === 'failure'
+                ? t.paymentFailureTitle
+                : t.paymentProcessingTitle;
+    }
+
+    if (messageEl) {
+        messageEl.textContent = state === 'success'
+            ? t.paymentSuccessMessage
+            : state === 'failure'
+                ? t.paymentFailureMessage
+                : t.paymentProcessingMessage;
+    }
+
+    const primaryAction = document.getElementById('paymentPrimaryAction');
+    const secondaryAction = document.getElementById('paymentSecondaryAction');
+    const tertiaryAction = document.getElementById('paymentTertiaryAction');
+
+    if (primaryAction) {
+        primaryAction.textContent = state === 'success'
+            ? t.paymentPrimarySuccess
+            : state === 'failure'
+                ? t.paymentPrimaryFailure
+                : t.paymentPrimaryProcessing;
+        primaryAction.hidden = false;
+    }
+
+    if (secondaryAction) {
+        secondaryAction.textContent = state === 'success'
+            ? t.paymentSecondarySuccess
+            : state === 'failure'
+                ? t.paymentSecondaryFailure
+                : t.paymentSecondaryProcessing;
+        secondaryAction.hidden = false;
+    }
+
+    if (tertiaryAction) {
+        tertiaryAction.hidden = true;
+    }
+}
+
+function handlePaymentReturn() {
+    const params = new URLSearchParams(window.location.search);
+    const rawStatus = params.get('payment_status')
+        || params.get('paymentStatus')
+        || params.get('payment_result')
+        || params.get('status');
+    if (!rawStatus) return;
+
+    const normalized = rawStatus.toLowerCase();
+    const successValues = ['success', 'succeeded', 'paid', 'ok'];
+    const failureValues = ['fail', 'failed', 'failure', 'canceled', 'cancelled', 'error'];
+
+    if (successValues.includes(normalized)) {
+        setPaymentState('success');
+        closeModal('orderModal');
+        openModal('paymentModal');
+    } else if (failureValues.includes(normalized)) {
+        setPaymentState('failure');
+        closeModal('orderModal');
+        openModal('paymentModal');
+    }
+
+    ['payment_status', 'paymentStatus', 'payment_result', 'status'].forEach(key => params.delete(key));
+    const url = new URL(window.location.href);
+    url.search = params.toString();
+    window.history.replaceState({}, '', url.toString());
 }
 
 function initCookieNotice() {
@@ -461,6 +620,17 @@ function setupEventListeners() {
         const button = document.getElementById('payOnlineButton');
         const status = document.getElementById('orderStatus');
         const paymentUrl = button?.dataset.yookassaUrl;
+        const validation = validateOrderForm();
+        if (!validation.ok) {
+            if (status) {
+                status.textContent = validation.message;
+                status.style.color = "#dc2626";
+            }
+            return;
+        }
+        setPaymentState('processing');
+        closeModal('orderModal');
+        openModal('paymentModal');
         if (status) {
             status.textContent = t.redirectingPayment || "Redirecting to online payment...";
             status.style.color = "#2563eb";
@@ -475,8 +645,7 @@ function setupEventListeners() {
 
     document.getElementById('newCalculationButton')?.addEventListener('click', () => {
         resetOrderForm();
-        document.getElementById('orderModal')?.classList.remove('open');
-        document.body.classList.remove('modal-open');
+        closeModal('orderModal');
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
@@ -487,9 +656,44 @@ function setupEventListeners() {
 
     document.querySelectorAll('.close-modal').forEach(btn => {
         btn.addEventListener('click', () => {
-            document.getElementById('orderModal').classList.remove('open');
-            document.body.classList.remove('modal-open');
+            const targetId = btn.dataset.modalClose;
+            if (targetId) {
+                closeModal(targetId);
+                return;
+            }
+            const modal = btn.closest('.modal-overlay');
+            if (modal?.id) {
+                closeModal(modal.id);
+            }
         });
+    });
+
+    document.getElementById('paymentPrimaryAction')?.addEventListener('click', () => {
+        if (paymentState === 'success') {
+            resetOrderForm();
+            closeModal('paymentModal');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else if (paymentState === 'failure') {
+            closeModal('paymentModal');
+            openModal('orderModal');
+        } else {
+            closeModal('paymentModal');
+        }
+    });
+
+    document.getElementById('paymentSecondaryAction')?.addEventListener('click', () => {
+        if (paymentState === 'success') {
+            resetOrderForm();
+            closeModal('paymentModal');
+            openModal('orderModal');
+        } else if (paymentState === 'failure') {
+            resetOrderForm();
+            closeModal('paymentModal');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+            closeModal('paymentModal');
+            openModal('orderModal');
+        }
     });
 
     ['objectName', 'objectAddress', 'contactName', 'contactPhone', 'contactEmail', 'contactTelegram'].forEach(id => {
@@ -558,11 +762,9 @@ function updateTargetRatingMin() {
 function checkPdfRequirements() {
     const name = document.getElementById('objectName')?.value.trim() || '';
     const address = document.getElementById('objectAddress')?.value.trim() || '';
-    const phone = document.getElementById('contactPhone')?.value.trim() || '';
     const email = document.getElementById('contactEmail')?.value.trim() || '';
-    const telegram = document.getElementById('contactTelegram')?.value.trim() || '';
 
-    const valid = name && address && (phone || email || telegram);
+    const valid = name && address && email;
 
     const btn = document.getElementById('modalDownloadPdf');
     if (btn) {
@@ -570,6 +772,73 @@ function checkPdfRequirements() {
         btn.classList.toggle('btn-primary', valid);
         btn.classList.toggle('btn-secondary', !valid);
     }
+}
+
+function validateOrderForm() {
+    const lang = document.documentElement.lang;
+    const t = translations[lang] || translations.ru;
+    const name = document.getElementById('objectName')?.value.trim() || '';
+    const address = document.getElementById('objectAddress')?.value.trim() || '';
+    const email = document.getElementById('contactEmail')?.value.trim() || '';
+
+    if (!name || !address || !email) {
+        return { ok: false, message: t.emailRequiredError };
+    }
+
+    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if (!emailValid) {
+        return { ok: false, message: t.emailRequiredError };
+    }
+
+    return { ok: true };
+}
+
+function collectServiceQuantities() {
+    return {
+        videoReview: getVal('videoReviewQty'),
+        exclusiveArticle: getVal('exclusiveArticleQty'),
+        aiArticle: getVal('aiArticleQty'),
+        articlePlacement: getVal('articlePlacementQty'),
+        chatConsultation: getCheck('chatConsultationQty') ? 1 : 0,
+        voiceConsultation: getCheck('voiceConsultationQty') ? 1 : 0
+    };
+}
+
+function buildOrderPayload(orderType) {
+    const calculation = calculate();
+    const payload = {
+        orderType,
+        objectName: document.getElementById('objectName')?.value.trim() || '',
+        objectAddress: document.getElementById('objectAddress')?.value.trim() || '',
+        discountNumber: document.getElementById('discountInput')?.value.trim() || '',
+        contactName: document.getElementById('contactName')?.value.trim() || '',
+        contactPhone: document.getElementById('contactPhone')?.value.trim() || '',
+        contactEmail: document.getElementById('contactEmail')?.value.trim() || '',
+        contactTelegram: document.getElementById('contactTelegram')?.value.trim() || '',
+        comment: document.getElementById('orderComment')?.value.trim() || '',
+        strategy: currentOrderContext?.isFast ? 'fast' : 'organic',
+        calculation: calculation ? {
+            currentReviews: getVal('currentReviews'),
+            maxRating: getVal('maxRating'),
+            currentRating: getVal('currentRating'),
+            targetRating: getVal('targetRating'),
+            newRatingMin: getVal('newRatingMin'),
+            newRatingMax: getVal('newRatingMax'),
+            requiresReservation: getCheck('requiresReservation'),
+            reservationCost: getVal('reservationCost'),
+            serviceQuantities: collectServiceQuantities(),
+            totalCost: calculation.total
+        } : null
+    };
+
+    return payload;
+}
+
+function createIdempotencyKey() {
+    if (window.crypto?.randomUUID) {
+        return window.crypto.randomUUID();
+    }
+    return `order_${Date.now()}_${Math.random().toString(16).slice(2)}`;
 }
 
 function updateInputVisibility() {
@@ -760,8 +1029,8 @@ function showSummary(isFast) {
         successNotice.hidden = true;
     }
 
-    document.getElementById('orderModal')?.classList.add('open');
-    document.body.classList.add('modal-open');
+    closeModal('paymentModal');
+    openModal('orderModal');
 
     checkPdfRequirements();
 }
@@ -1477,25 +1746,65 @@ function resetOrderForm() {
     checkPdfRequirements();
 }
 
-document.getElementById('orderForm')?.addEventListener('submit', e => {
+document.getElementById('orderForm')?.addEventListener('submit', async e => {
     e.preventDefault();
     const lang = document.documentElement.lang;
     const t = translations[lang] || translations.ru;
     const status = document.getElementById('orderStatus');
     const successNotice = document.getElementById('orderSuccessNotice');
+
     if (successNotice) {
         successNotice.hidden = true;
     }
+
+    const validation = validateOrderForm();
+    if (!validation.ok) {
+        if (status) {
+            status.textContent = validation.message;
+            status.style.color = "#dc2626";
+        }
+        return;
+    }
+
+    const payload = buildOrderPayload('no_prepay');
+    const captchaToken = window.grecaptcha?.getResponse?.() || '';
+    if (captchaToken) {
+        payload.captchaToken = captchaToken;
+    }
+
     if (status) {
         status.textContent = t.sendingStatus || "Отправка...";
         status.style.color = "#2563eb";
-        setTimeout(() => {
+    }
+
+    try {
+        const response = await fetch('send_order.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Idempotency-Key': createIdempotencyKey()
+            },
+            body: JSON.stringify(payload)
+        });
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok || data.status !== 'ok') {
+            throw new Error(data.message || 'Request failed');
+        }
+
+        if (status) {
             status.textContent = t.submitSuccess || "Заявка отправлена!";
             status.style.color = "green";
-            if (successNotice) {
-                successNotice.hidden = false;
-            }
-        }, 1500);
+        }
+        if (successNotice) {
+            successNotice.hidden = false;
+        }
+    } catch (error) {
+        if (status) {
+            status.textContent = t.submitError || "Ошибка отправки заявки.";
+            status.style.color = "#dc2626";
+        }
+        console.error(error);
     }
 });
 

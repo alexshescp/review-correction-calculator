@@ -434,8 +434,8 @@
                             </div>
 
                             <div class="form-group full">
-                                <label id="contactEmailLabel">Email</label>
-                                <input type="email" id="contactEmail">
+                                <label id="contactEmailLabel" class="required">Email</label>
+                                <input type="email" id="contactEmail" required>
                             </div>
 
                             <div class="form-group full">
@@ -480,6 +480,29 @@
                                 </div>
                             </div>
                         </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="paymentModal" class="modal-overlay" aria-live="polite">
+            <div class="modal-dialog modal-dialog--compact">
+                <div class="modal-header">
+                    <h3 id="paymentModalTitle">Статус оплаты</h3>
+                    <button class="close-modal" data-modal-close="paymentModal" aria-label="Close">&times;</button>
+                </div>
+                <div class="modal-body payment-body">
+                    <div class="payment-status-card">
+                        <div id="paymentStateIcon" class="payment-status-icon"></div>
+                        <div class="payment-status-content">
+                            <h4 id="paymentStateTitle">Переходим к оплате</h4>
+                            <p id="paymentStateMessage">Мы перенаправим вас в платёжную систему.</p>
+                        </div>
+                    </div>
+                    <div class="modal-actions payment-actions">
+                        <button type="button" id="paymentPrimaryAction" class="btn btn-primary">Понятно</button>
+                        <button type="button" id="paymentSecondaryAction" class="btn btn-outline">Вернуться к заявке</button>
+                        <button type="button" id="paymentTertiaryAction" class="btn btn-secondary">Новый расчёт</button>
                     </div>
                 </div>
             </div>
