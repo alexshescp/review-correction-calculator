@@ -61,6 +61,7 @@ body {
     bottom: 24px;
     right: 24px;
     z-index: 1000;
+    height: 340px;
     width: 340px;
     max-width: calc(100% - 48px);
     background: rgba(255, 255, 255, 0.95);
@@ -1353,5 +1354,38 @@ body {
     .range-val {
         min-width: auto;
         flex: 0 0 auto;
+    }
+
+    .cookie-notice {
+        top: 50%;
+        left: 50%;
+        right: auto;
+        bottom: auto;
+        transform: translate(-50%, -50%) scale(0.96);
+
+        width: calc(100% - 32px);
+        max-width: 360px;
+        max-height: 70vh;
+
+        padding: 16px;
+        gap: 12px;
+
+        overflow: hidden;
+        /* важно */
+    }
+
+    .cookie-notice.visible {
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    .cookie-notice__text {
+        max-height: 40vh;
+        overflow-y: auto;
+        padding-right: 4px;
+    }
+
+    .cookie-notice__actions {
+        grid-template-columns: 1fr;
+        gap: 10px;
     }
 }
