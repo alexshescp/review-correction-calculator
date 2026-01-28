@@ -57,6 +57,14 @@ let translations = {
         "pdfHeaderSubtitle": "Управление репутацией",
         "pdfHeaderNote": "Подробности и связь в Telegram • yourep.ru",
         "submitSuccess": "Заявка отправлена успешно!",
+        "orderSuccessTitle": "Заявка принята",
+        "orderSuccessMessage": "Ожидайте — с вами свяжется менеджер. Хотите сделать ещё один расчёт или оформить новую заявку?",
+        "newCalculationButton": "Сделать новый расчёт",
+        "newOrderButton": "Оформить ещё одну заявку",
+        "cookieNoticeTitle": "Мы используем cookies для аналитики",
+        "cookieNoticeText": "Используем файлы cookie Яндекс, Мэил.ру, Microsoft, Google и других сервисов только для аналитики сайта. Маркетинговые цели не применяются, а персональные данные хранятся деперсонифицировано на серверах в РФ.",
+        "cookieNoticeAccept": "Понятно",
+        "redirectingPayment": "Перенаправляем на оплату через ЮKassa...",
         "objectNameLabel": "Название объекта",
         "objectAddressLabel": "Ссылка на объект (URL)",
         "enterDetailsForPdf": "Введите данные для формирования PDF и заявки",
@@ -157,6 +165,14 @@ let translations = {
         "pdfHeaderSubtitle": "Reputation Management",
         "pdfHeaderNote": "Details & contact via Telegram • yourep.ru",
         "submitSuccess": "Request sent successfully!",
+        "orderSuccessTitle": "Request received",
+        "orderSuccessMessage": "Please wait — our manager will contact you. Want another calculation or a new request?",
+        "newCalculationButton": "Make another calculation",
+        "newOrderButton": "Submit another request",
+        "cookieNoticeTitle": "We use cookies for analytics",
+        "cookieNoticeText": "We use Yandex, Mail.ru, Microsoft, Google, and other analytics cookies only for site analytics. No marketing use, and personal data is stored anonymized on servers in Russia.",
+        "cookieNoticeAccept": "Got it",
+        "redirectingPayment": "Redirecting to YooKassa payment...",
         "objectNameLabel": "Object / Company Name",
         "objectAddressLabel": "Link to object (URL)",
         "enterDetailsForPdf": "Enter details to generate PDF and request",
@@ -225,6 +241,7 @@ let currentOrderContext = null;
 
 function initApp() {
     initializeLanguage();
+    initCookieNotice();
     setupEventListeners();
     updateRanges();
     updateInputVisibility();
@@ -307,7 +324,14 @@ function updateLanguage(lang) {
         'contactTelegramLabel': 'contactTelegramLabel',
         'discountLabel': 'discountLabel',
         'orderCommentLabel': 'orderCommentLabel',
-        'googleCaptchaLabel': 'googleCaptchaLabel'
+        'googleCaptchaLabel': 'googleCaptchaLabel',
+        'cookieNoticeTitle': 'cookieNoticeTitle',
+        'cookieNoticeText': 'cookieNoticeText',
+        'cookieNoticeAccept': 'cookieNoticeAccept',
+        'orderSuccessTitle': 'orderSuccessTitle',
+        'orderSuccessMessage': 'orderSuccessMessage',
+        'newCalculationButton': 'newCalculationButton',
+        'newOrderButton': 'newOrderButton'
     };
 
     Object.entries(map).forEach(([id, key]) => setText(id, key));
@@ -336,6 +360,15 @@ function updateLanguage(lang) {
     calculate();
 }
 
+function initCookieNotice() {
+    const notice = document.getElementById('cookieNotice');
+    if (!notice) return;
+    const accepted = localStorage.getItem('cookieNoticeAccepted') === 'true';
+    if (accepted) {
+        notice.classList.add('hidden');
+    }
+}
+
 function getVal(id) {
     return parseFloat(document.getElementById(id)?.value) || 0;
 }
@@ -345,6 +378,11 @@ function getCheck(id) {
 }
 
 function setupEventListeners() {
+    document.getElementById('cookieNoticeAccept')?.addEventListener('click', () => {
+        localStorage.setItem('cookieNoticeAccepted', 'true');
+        document.getElementById('cookieNotice')?.classList.add('hidden');
+    });
+
     const inputsWithRanges = ['currentReviews', 'maxRating', 'currentRating', 'targetRating', 'videoReviewQty', 'exclusiveArticleQty', 'aiArticleQty', 'articlePlacementQty'];
     inputsWithRanges.forEach(id => {
         const input = document.getElementById(id);
@@ -403,7 +441,31 @@ function setupEventListeners() {
     document.getElementById('payOnlineButton')?.addEventListener('click', () => {
         const lang = document.documentElement.lang;
         const t = translations[lang] || translations.ru;
-        alert(t.redirectingPayment || "Redirecting to online payment...");
+        const button = document.getElementById('payOnlineButton');
+        const status = document.getElementById('orderStatus');
+        const paymentUrl = button?.dataset.yookassaUrl;
+        if (status) {
+            status.textContent = t.redirectingPayment || "Redirecting to online payment...";
+            status.style.color = "#2563eb";
+        }
+        if (paymentUrl) {
+            const newWindow = window.open(paymentUrl, '_blank', 'noopener');
+            if (!newWindow) {
+                window.location.href = paymentUrl;
+            }
+        }
+    });
+
+    document.getElementById('newCalculationButton')?.addEventListener('click', () => {
+        resetOrderForm();
+        document.getElementById('orderModal')?.classList.remove('open');
+        document.body.classList.remove('modal-open');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    document.getElementById('newOrderButton')?.addEventListener('click', () => {
+        resetOrderForm();
+        document.getElementById('orderForm')?.scrollIntoView({ behavior: 'smooth' });
     });
 
     document.querySelectorAll('.close-modal').forEach(btn => {
@@ -669,6 +731,16 @@ function showSummary(isFast) {
                 </ul>
             </div>
         `;
+    }
+
+    const status = document.getElementById('orderStatus');
+    if (status) {
+        status.textContent = '';
+        status.style.color = '';
+    }
+    const successNotice = document.getElementById('orderSuccessNotice');
+    if (successNotice) {
+        successNotice.hidden = true;
     }
 
     document.getElementById('orderModal')?.classList.add('open');
@@ -1371,17 +1443,41 @@ function updateRanges() {
     });
 }
 
+function resetOrderForm() {
+    const form = document.getElementById('orderForm');
+    if (form) {
+        form.reset();
+    }
+    const status = document.getElementById('orderStatus');
+    if (status) {
+        status.textContent = '';
+        status.style.color = '';
+    }
+    const successNotice = document.getElementById('orderSuccessNotice');
+    if (successNotice) {
+        successNotice.hidden = true;
+    }
+    checkPdfRequirements();
+}
+
 document.getElementById('orderForm')?.addEventListener('submit', e => {
     e.preventDefault();
     const lang = document.documentElement.lang;
     const t = translations[lang] || translations.ru;
     const status = document.getElementById('orderStatus');
+    const successNotice = document.getElementById('orderSuccessNotice');
+    if (successNotice) {
+        successNotice.hidden = true;
+    }
     if (status) {
         status.textContent = t.sendingStatus || "Отправка...";
         status.style.color = "#2563eb";
         setTimeout(() => {
             status.textContent = t.submitSuccess || "Заявка отправлена!";
             status.style.color = "green";
+            if (successNotice) {
+                successNotice.hidden = false;
+            }
         }, 1500);
     }
 });
