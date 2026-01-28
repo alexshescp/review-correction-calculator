@@ -84,6 +84,7 @@ let translations = {
         "cookieNoticeText": "Этот сайт использует файлы cookie для хранения данных. Продолжая использовать сайт, вы даете согласие на работу с этими файлами.",
         "cookieNoticeAccept": "Принять",
         "cookieNoticeDecline": "Отклонить",
+        "cookieSettingsLabel": "Изменить решение о cookie",
         "redirectingPayment": "Перенаправляем на оплату через ЮKassa...",
         "objectNameLabel": "Название объекта",
         "objectAddressLabel": "Ссылки объекта на платформах (URL), можно через запятую",
@@ -214,6 +215,7 @@ let translations = {
         "cookieNoticeText": "This website uses cookies to store data. By continuing to use the site, you consent to the use of these files.",
         "cookieNoticeAccept": "Accept",
         "cookieNoticeDecline": "Decline",
+        "cookieSettingsLabel": "Change cookie decision",
         "redirectingPayment": "Redirecting to YooKassa payment...",
         "objectNameLabel": "Object / Company Name",
         "objectAddressLabel": "Link to object (URL)",
@@ -443,6 +445,7 @@ function updateLanguage(lang) {
         'cookieNoticeTitle': 'cookieNoticeTitle',
         'cookieNoticeText': 'cookieNoticeText',
         'cookieNoticeAccept': 'cookieNoticeAccept',
+        'cookieSettingsLabel': 'cookieSettingsLabel',
         'orderSuccessTitle': 'orderSuccessTitle',
         'orderSuccessMessage': 'orderSuccessMessage',
         'newCalculationButton': 'newCalculationButton',
@@ -608,6 +611,11 @@ function setupEventListeners() {
     document.getElementById('cookieNoticeDecline')?.addEventListener('click', () => {
         localStorage.setItem('cookieConsent', 'declined');
         hideCookieNotice();
+    });
+
+    document.getElementById('cookieSettingsButton')?.addEventListener('click', () => {
+        localStorage.removeItem('cookieConsent');
+        showCookieNotice();
     });
 
     const inputsWithRanges = ['currentReviews', 'maxRating', 'currentRating', 'targetRating', 'videoReviewQty', 'exclusiveArticleQty', 'aiArticleQty', 'articlePlacementQty'];
@@ -1994,5 +2002,15 @@ function hideCookieNotice() {
         setTimeout(() => {
             notice.classList.add('hidden');
         }, 300);
+    }
+}
+
+function showCookieNotice() {
+    const notice = document.getElementById('cookieNotice');
+    if (notice) {
+        notice.classList.remove('hidden');
+        setTimeout(() => {
+            notice.classList.add('visible');
+        }, 50);
     }
 }
