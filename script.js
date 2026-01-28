@@ -63,6 +63,8 @@ let translations = {
         "newOrderButton": "Оформить ещё одну заявку",
         "sendingStatus": "Отправляем заявку...",
         "submitError": "Не удалось отправить заявку. Попробуйте ещё раз.",
+        "orderStatusTitle": "Статус заявки",
+        "orderStatusClose": "Понятно",
         "emailRequiredError": "Укажите корректный email для связи.",
         "paymentModalTitle": "Статус оплаты",
         "paymentProcessingTitle": "Переходим к оплате",
@@ -188,6 +190,8 @@ let translations = {
         "newOrderButton": "Submit another request",
         "sendingStatus": "Sending request...",
         "submitError": "Failed to send the request. Please try again.",
+        "orderStatusTitle": "Request status",
+        "orderStatusClose": "Got it",
         "emailRequiredError": "Please provide a valid email address.",
         "paymentModalTitle": "Payment status",
         "paymentProcessingTitle": "Redirecting to payment",
@@ -306,6 +310,7 @@ function ensureOrderState() {
     if (successNotice) {
         successNotice.hidden = true;
     }
+    hideOrderStatusOverlay();
     setPaymentState('processing');
 }
 
@@ -328,6 +333,43 @@ function closeModal(id) {
 function updateModalOpenState() {
     const hasOpenModal = !!document.querySelector('.modal-overlay.open');
     document.body.classList.toggle('modal-open', hasOpenModal);
+}
+
+function setOrderStatusOverlay({ type, message }) {
+    const overlay = document.getElementById('orderStatusOverlay');
+    if (!overlay) return;
+    const icon = document.getElementById('orderStatusIcon');
+    const messageEl = document.getElementById('orderStatusMessage');
+    if (messageEl) {
+        messageEl.textContent = message;
+    }
+    overlay.classList.toggle('is-success', type === 'success');
+    overlay.classList.toggle('is-error', type === 'error');
+    if (icon) {
+        if (type === 'success') {
+            icon.innerHTML = '<i class="fas fa-check-circle"></i>';
+        } else if (type === 'error') {
+            icon.innerHTML = '<i class="fas fa-triangle-exclamation"></i>';
+        } else {
+            icon.innerHTML = '';
+        }
+    }
+    overlay.hidden = false;
+}
+
+function hideOrderStatusOverlay() {
+    const overlay = document.getElementById('orderStatusOverlay');
+    if (!overlay) return;
+    overlay.hidden = true;
+    overlay.classList.remove('is-success', 'is-error');
+    const messageEl = document.getElementById('orderStatusMessage');
+    if (messageEl) {
+        messageEl.textContent = '';
+    }
+    const icon = document.getElementById('orderStatusIcon');
+    if (icon) {
+        icon.innerHTML = '';
+    }
 }
 
 function updateLanguage(lang) {
@@ -398,6 +440,8 @@ function updateLanguage(lang) {
         'orderSuccessMessage': 'orderSuccessMessage',
         'newCalculationButton': 'newCalculationButton',
         'newOrderButton': 'newOrderButton',
+        'orderStatusTitle': 'orderStatusTitle',
+        'orderStatusClose': 'orderStatusClose',
         'paymentModalTitle': 'paymentModalTitle'
     };
 
@@ -666,6 +710,10 @@ function setupEventListeners() {
                 closeModal(modal.id);
             }
         });
+    });
+
+    document.getElementById('orderStatusClose')?.addEventListener('click', () => {
+        hideOrderStatusOverlay();
     });
 
     document.getElementById('paymentPrimaryAction')?.addEventListener('click', () => {
@@ -1028,6 +1076,7 @@ function showSummary(isFast) {
     if (successNotice) {
         successNotice.hidden = true;
     }
+    hideOrderStatusOverlay();
 
     closeModal('paymentModal');
     openModal('orderModal');
@@ -1743,6 +1792,7 @@ function resetOrderForm() {
     if (successNotice) {
         successNotice.hidden = true;
     }
+    hideOrderStatusOverlay();
     checkPdfRequirements();
 }
 
@@ -1756,6 +1806,7 @@ document.getElementById('orderForm')?.addEventListener('submit', async e => {
     if (successNotice) {
         successNotice.hidden = true;
     }
+    hideOrderStatusOverlay();
 
     const validation = validateOrderForm();
     if (!validation.ok) {
@@ -1796,6 +1847,10 @@ document.getElementById('orderForm')?.addEventListener('submit', async e => {
             status.textContent = t.submitSuccess || "Заявка отправлена!";
             status.style.color = "green";
         }
+        setOrderStatusOverlay({
+            type: 'success',
+            message: t.submitSuccess || "Заявка отправлена!"
+        });
         if (successNotice) {
             successNotice.hidden = false;
         }
@@ -1804,6 +1859,10 @@ document.getElementById('orderForm')?.addEventListener('submit', async e => {
             status.textContent = t.submitError || "Ошибка отправки заявки.";
             status.style.color = "#dc2626";
         }
+        setOrderStatusOverlay({
+            type: 'error',
+            message: t.submitError || "Ошибка отправки заявки."
+        });
         console.error(error);
     }
 });

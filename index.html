@@ -368,6 +368,16 @@
         <!-- Modal -->
         <div id="orderModal" class="modal-overlay">
             <div class="modal-dialog">
+                <div id="orderStatusOverlay" class="modal-status-overlay" hidden aria-live="polite">
+                    <div class="modal-status-card">
+                        <div id="orderStatusIcon" class="modal-status-icon"></div>
+                        <div class="modal-status-content">
+                            <h4 id="orderStatusTitle">Статус заявки</h4>
+                            <p id="orderStatusMessage"></p>
+                        </div>
+                        <button type="button" id="orderStatusClose" class="btn btn-primary">Понятно</button>
+                    </div>
+                </div>
                 <div class="modal-header">
                     <h3 id="modalTitle">Итог заказа</h3>
                     <button class="close-modal" aria-label="Close">&times;</button>
