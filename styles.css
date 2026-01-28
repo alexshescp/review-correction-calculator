@@ -944,6 +944,22 @@ body {
     display: inline-block;
 }
 
+.offer-notice {
+    margin: 8px 0 0;
+    font-size: 0.9rem;
+    color: #475569;
+    line-height: 1.4;
+}
+
+.offer-notice a {
+    color: #2563eb;
+    text-decoration: none;
+}
+
+.offer-notice a:hover {
+    text-decoration: underline;
+}
+
 .modal-actions {
     display: flex;
     justify-content: flex-end;
