@@ -709,6 +709,30 @@ body {
     text-decoration: underline;
 }
 
+/* Footer */
+.site-footer {
+    margin: 40px auto 20px;
+    padding: 0 20px 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.footer-cookie-button {
+    padding: 6px 14px;
+    font-size: 0.75rem;
+    border-radius: 10px;
+    border-width: 1px;
+}
+
+.footer-company {
+    margin: 0;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
 /* Modal */
 .modal-overlay {
     display: none;
