@@ -60,4 +60,6 @@
 ├── logo-vr.png         # Логотип
 ├── fonts/
 │   └── DejaVuSans.ttf  # Шрифт для PDF
+├── docs/
+│   └── openapi.yaml    # Спецификация интеграций (YouPay, Telegram, email)
 └── README.md

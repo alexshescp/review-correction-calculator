@@ -57,6 +57,13 @@ if ($captchaSecret) {
 $botToken = getenv('TELEGRAM_BOT_TOKEN');
 $chatId = getenv('TELEGRAM_CHAT_ID');
 
+$contactEmail = trim((string)($payload['contactEmail'] ?? ''));
+if ($contactEmail === '' || !filter_var($contactEmail, FILTER_VALIDATE_EMAIL)) {
+    http_response_code(400);
+    echo json_encode(['status' => 'error', 'message' => 'Valid contact email is required']);
+    exit;
+}
+
 if (!$botToken || !$chatId) {
     http_response_code(500);
     echo json_encode(['status' => 'error', 'message' => 'Telegram credentials are not configured']);
@@ -71,6 +78,14 @@ if (!$response['ok']) {
     echo json_encode(['status' => 'error', 'message' => 'Failed to send Telegram message']);
     exit;
 }
+
+if (!sendCustomerEmail($payload, $contactEmail)) {
+    http_response_code(502);
+    echo json_encode(['status' => 'error', 'message' => 'Failed to send confirmation email']);
+    exit;
+}
+
+sendManagerEmail($payload);
 
 file_put_contents($idempotencyFile, json_encode(['time' => time(), 'payload' => $payload], JSON_UNESCAPED_UNICODE));
 echo json_encode(['status' => 'ok']);
@@ -159,4 +174,79 @@ function sendTelegramMessage(string $botToken, string $chatId, string $message):
 
     $decoded = json_decode($result, true);
     return ['ok' => isset($decoded['ok']) && $decoded['ok'] === true];
+}
+
+function sendCustomerEmail(array $payload, string $email): bool
+{
+    $subject = buildEmailSubject('Получена заявка на расчёт отзывов');
+    $body = buildEmailBody($payload, true);
+    return sendEmail($email, $subject, $body);
+}
+
+function sendManagerEmail(array $payload): void
+{
+    $managerEmail = getenv('MANAGER_EMAIL');
+    if (!$managerEmail) {
+        return;
+    }
+    $subject = buildEmailSubject('Новая заявка на расчёт отзывов');
+    $body = buildEmailBody($payload, false);
+    sendEmail($managerEmail, $subject, $body);
+}
+
+function buildEmailSubject(string $subject): string
+{
+    return mb_encode_mimeheader($subject, 'UTF-8');
+}
+
+function buildEmailBody(array $payload, bool $forCustomer): string
+{
+    $calculation = $payload['calculation'] ?? [];
+    $lines = [
+        $forCustomer ? 'Спасибо! Мы получили вашу заявку на расчёт отзывов.' : 'Поступила новая заявка на расчёт отзывов.',
+        '',
+        'Контактная информация:',
+        'Имя: ' . ($payload['contactName'] ?? '—'),
+        'Телефон: ' . ($payload['contactPhone'] ?? '—'),
+        'Email: ' . ($payload['contactEmail'] ?? '—'),
+        'Telegram: ' . ($payload['contactTelegram'] ?? '—'),
+        '',
+        'Объект:',
+        'Название: ' . ($payload['objectName'] ?? '—'),
+        'Ссылка: ' . ($payload['objectAddress'] ?? '—'),
+        '',
+        'Детали расчёта:',
+        'Текущее количество отзывов: ' . ($calculation['currentReviews'] ?? '—'),
+        'Максимальный балл: ' . ($calculation['maxRating'] ?? '—'),
+        'Текущий балл: ' . ($calculation['currentRating'] ?? '—'),
+        'Целевой балл: ' . ($calculation['targetRating'] ?? '—'),
+        'Диапазон новых оценок: ' . ($calculation['newRatingMin'] ?? '—') . ' - ' . ($calculation['newRatingMax'] ?? '—'),
+        'Платные резервирования: ' . ((($calculation['requiresReservation'] ?? false) === true) ? 'Да' : 'Нет'),
+        'Средняя стоимость резервирования: ' . ($calculation['reservationCost'] ?? '—'),
+        'Дополнительные услуги: ' . formatServiceSummary($calculation['serviceQuantities'] ?? []),
+        'Итоговая стоимость: ' . ($calculation['totalCost'] ?? '—') . ' ₽',
+        '',
+        'Комментарий: ' . ($payload['comment'] ?? '—')
+    ];
+
+    if ($forCustomer) {
+        $lines[] = '';
+        $lines[] = 'Мы свяжемся с вами в ближайшее время.';
+    }
+
+    return implode("\n", $lines);
+}
+
+function sendEmail(string $to, string $subject, string $body): bool
+{
+    $from = getenv('EMAIL_FROM') ?: 'no-reply@yourep.ru';
+    $replyTo = getenv('EMAIL_REPLY_TO') ?: $from;
+    $headers = [
+        'From: ' . $from,
+        'Reply-To: ' . $replyTo,
+        'MIME-Version: 1.0',
+        'Content-Type: text/plain; charset=UTF-8'
+    ];
+
+    return mail($to, $subject, $body, implode("\r\n", $headers));
 }
