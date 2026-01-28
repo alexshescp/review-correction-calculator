@@ -1,13 +1,32 @@
 <?php
+
 declare(strict_types=1);
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', '1');
+error_reporting(E_ALL);
 
 header('Content-Type: application/json; charset=utf-8');
+// CORS + preflight
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    header('Access-Control-Allow-Origin: https://correct.yourep.ru');
+    header('Access-Control-Allow-Methods: POST, OPTIONS');
+    header('Access-Control-Allow-Headers: Content-Type, Idempotency-Key');
+    http_response_code(204);
+    exit;
+}
+
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(204);
+    exit;
+}
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
     echo json_encode(['status' => 'error', 'message' => 'Method not allowed']);
     exit;
 }
+
 
 $rawInput = file_get_contents('php://input');
 $payload = json_decode($rawInput ?? '', true);
@@ -69,38 +88,35 @@ if (file_exists($idempotencyFile)) {
     exit;
 }
 
-$captchaSecret = getenv('YANDEX_SMARTCAPTCHA_SECRET') ?: getenv('YANDEX_CAPTCHA_SERVER_KEY');
-if ($captchaSecret) {
+$captchaSecret = getenv('GOOGLE_RECAPTCHA_SECRET');
+
+if ($captchaSecret && $action === 'order_submission') {
     $captchaToken = trim((string)($payload['captchaToken'] ?? ''));
+
     if ($captchaToken === '') {
-        logOrderAttempt($db, [
-            'action' => $action,
-            'status' => 'error',
-            'error_message' => 'SmartCaptcha token is required',
-            'idempotency_key' => $idempotencyKey,
-            'order_number' => $orderNumber,
-            'payload' => $payload
-        ]);
         http_response_code(400);
-        echo json_encode(['status' => 'error', 'message' => 'SmartCaptcha token is required']);
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Captcha is required'
+        ]);
         exit;
     }
 
-    $captchaResponse = verifySmartCaptcha($captchaSecret, $captchaToken, $_SERVER['REMOTE_ADDR'] ?? '');
-    if (!$captchaResponse['ok']) {
-        logOrderAttempt($db, [
-            'action' => $action,
-            'status' => 'error',
-            'error_message' => 'SmartCaptcha validation failed',
-            'idempotency_key' => $idempotencyKey,
-            'order_number' => $orderNumber,
-            'payload' => $payload
-        ]);
+    if (!verifyGoogleRecaptchaV2(
+        $captchaSecret,
+        $captchaToken,
+        $_SERVER['REMOTE_ADDR'] ?? ''
+    )) {
         http_response_code(403);
-        echo json_encode(['status' => 'error', 'message' => 'SmartCaptcha validation failed']);
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Captcha validation failed'
+        ]);
         exit;
     }
 }
+
+
 
 $botToken = getenv('TELEGRAM_BOT_TOKEN');
 $chatId = getenv('TELEGRAM_CHAT_ID');
@@ -151,22 +167,37 @@ if (!$response['ok']) {
     exit;
 }
 
+$emailError = null;
+
 if (in_array($action, ['order_submission', 'payment_initiated'], true)) {
     if (!sendCustomerEmail($payload, $contactEmail)) {
+        $emailError = 'Failed to send confirmation email';
+
         logOrderAttempt($db, [
             'action' => $action,
-            'status' => 'error',
-            'error_message' => 'Failed to send confirmation email',
+            'status' => 'warning',
+            'error_message' => $emailError,
             'idempotency_key' => $idempotencyKey,
             'order_number' => $orderNumber,
             'payload' => $payload
         ]);
-        http_response_code(502);
-        echo json_encode(['status' => 'error', 'message' => 'Failed to send confirmation email']);
-        exit;
     }
-    sendManagerEmail($payload);
+
+    // менеджеру можно тоже best-effort
+    try {
+        sendManagerEmail($payload);
+    } catch (\Throwable $e) {
+        logOrderAttempt($db, [
+            'action' => $action,
+            'status' => 'warning',
+            'error_message' => 'Manager email failed: ' . $e->getMessage(),
+            'idempotency_key' => $idempotencyKey,
+            'order_number' => $orderNumber,
+            'payload' => $payload
+        ]);
+    }
 }
+
 
 logOrderAttempt($db, [
     'action' => $action,
@@ -184,6 +215,31 @@ file_put_contents($idempotencyFile, json_encode([
     'action' => $action
 ], JSON_UNESCAPED_UNICODE));
 echo json_encode(['status' => 'ok', 'orderNumber' => $orderNumber]);
+
+function verifyGoogleRecaptchaV2(string $secret, string $token, string $ip): bool
+{
+    $ch = curl_init('https://www.google.com/recaptcha/api/siteverify');
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => http_build_query([
+            'secret'   => $secret,
+            'response' => $token,
+            'remoteip' => $ip
+        ]),
+        CURLOPT_TIMEOUT => 10,
+    ]);
+
+    $result = curl_exec($ch);
+    curl_close($ch);
+
+    if (!$result) {
+        return false;
+    }
+
+    $data = json_decode($result, true);
+    return !empty($data['success']);
+}
 
 function verifySmartCaptcha(string $secret, string $token, string $ip): array
 {
@@ -235,7 +291,7 @@ function buildTelegramMessage(array $payload): string
         $lines[] = "PDF скачан: " . $payload['pdfDownloadedAt'];
     }
 
-    return implode(\"\\n\", $lines);
+    return implode("\n", $lines);
 }
 
 function formatServiceSummary(array $services): string

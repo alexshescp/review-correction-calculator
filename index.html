@@ -35,6 +35,8 @@
         content="Быстрый расчёт улучшения рейтинга, PDF-отчёт и управление отзывами на 25+ платформах.">
     <meta name="twitter:image" content="https://yourep.ru/calculator.jpg">
     <meta name="twitter:site" content="@yourep">
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
     <script type="application/ld+json">
         {
             "@context": "https://schema.org",
@@ -126,7 +128,7 @@
             <div class="nav-container">
                 <div class="brand">
                     <img src="logo-vr.png" alt="VR Logo" class="brand-logo">
-                    <span class="brand-name" id="title">Review Calculator</span>
+                    <span class="brand-name" id="title">Сколько Стоит Исправить Отзывы</span>
                 </div>
                 <div class="nav-controls">
                     <div id="headerPriceDisplay" class="header-price">
@@ -367,7 +369,7 @@
                         <div id="result" class="result-box" style="display: none;"></div>
 
                         <button id="downloadPdf" class="btn btn-text-only">
-                            <i class="fas fa-file-download"></i> <span id="downloadPdfLabel">Скачать PDF</span>
+                            <i class="fas fa-file-download"></i> <span id="downloadPdfLabel">⇓ PDF</span>
                         </button>
                     </div>
                 </section>
@@ -459,7 +461,7 @@
 
                             <div class="form-group full">
                                 <label id="googleCaptchaLabel">Подтверждение</label>
-                                <div class="g-recaptcha" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"></div>
+                                <div class="g-recaptcha" data-sitekey="6LedblksAAAAABaHDGBFaANzlr8r_khIoOrvrNYb"></div>
                             </div>
 
                             <div class="form-group full">
@@ -468,13 +470,15 @@
                             </div>
 
                             <p class="offer-notice">
-                                <span id="offerNoticeText">Нажимая любую кнопку, вы подтверждаете ознакомление с офертой</span>
-                                (<a id="offerNoticeLink" href="https://yourep.ru/hidden_buyer_offerta.pdf" target="_blank" rel="noopener noreferrer">yourep.ru/hidden_buyer_offerta.pdf</a>).
+                                <a id="offerNoticeLink" href="https://yourep.ru/hidden_buyer_offerta.pdf"
+                                    target="_blank" rel="noopener noreferrer"><span id="offerNoticeText">Нажимая любую
+                                        кнопку, вы подтверждаете ознакомление с
+                                        офертой</span></a>
                             </p>
 
                             <div class="modal-actions">
                                 <button type="button" id="modalDownloadPdf" class="btn btn-secondary" disabled>
-                                    <i class="fas fa-file-pdf"></i> <span id="downloadPdfLabel2">Скачать PDF</span>
+                                    <i class="fas fa-file-pdf"></i> <span id="downloadPdfLabel2">⇓ PDF</span>
                                 </button>
 
                                 <button type="submit" id="submitOrderButton" class="btn btn-primary">
@@ -525,7 +529,8 @@
                     </div>
                     <div class="modal-actions payment-actions">
                         <button type="button" id="paymentPrimaryAction" class="btn btn-primary">Понятно</button>
-                        <button type="button" id="paymentSecondaryAction" class="btn btn-outline">Вернуться к заявке</button>
+                        <button type="button" id="paymentSecondaryAction" class="btn btn-outline">Вернуться к
+                            заявке</button>
                         <button type="button" id="paymentTertiaryAction" class="btn btn-secondary">Новый расчёт</button>
                     </div>
                 </div>
