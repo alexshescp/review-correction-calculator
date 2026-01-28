@@ -1,8 +1,8 @@
 let translations = {
     "ru": {
-        "title": "Калькулятор исправления отзывов",
+        "title": "Калькулятор улучшения рейтингов",
         "calculatorSubtitle": "Введите данные для расчёта",
-        "currentReviewsLabel": "Текущее количество отзывов (0-10000):",
+        "currentReviewsLabel": "Текущее количество отзывов:",
         "maxRatingLabel": "Максимальный балл (1-10):",
         "currentRatingLabel": "Текущий балл (0-Макс):",
         "targetRatingLabel": "Требуемый балл (0-Макс):",
@@ -24,11 +24,11 @@ let translations = {
         "promoTitle": "Преимущества сервиса",
         "promoItem1Title": "Быстрый запуск",
         "promoItem1Text": "Расчёт и заявка за 2 минуты",
-        "promoItem2Title": "Защита заявки",
-        "promoItem2Text": "Идемпотентность + SmartCaptcha защита от DDoS",
-        "promoItem3Title": "Структурированный отчёт",
-        "promoItem3Text": "PDF со сметой, сроками и дополнительными услугами",
-        "brandLabel": "Сервис «Ваша Репутация»",
+        "promoItem2Title": "Легальность и реальность",
+        "promoItem2Text": "Исключительно легальные методы через реальные отзывы и видео-отчёты тайных покупателей / посетителей",
+        "promoItem3Title": "Включите мониторинг Ваших рейтингов",
+        "promoItem3Text": "PDF отчёты об изменениях каждую неделю или каждый день, возможность увидеть ретроспективные, исторические данные изменения рейтингов и отзывов о Вашем объекте",
+        "brandLabel": "Улучшаем рейтинги за счёт позитивных отзывов",
         "brandSubtitle": "Управление рейтингом объекта на 25+ платформах",
         "brandLinkLabel": "yourep.ru",
         "summaryTitle": "Сводка расчёта",
@@ -84,7 +84,6 @@ let translations = {
         "cookieNoticeText": "Этот сайт использует файлы cookie для хранения данных. Продолжая использовать сайт, вы даете согласие на работу с этими файлами.",
         "cookieNoticeAccept": "Принять",
         "cookieNoticeDecline": "Отклонить",
-        "cookieSettingsLabel": "Изменить решение о cookie",
         "redirectingPayment": "Перенаправляем на оплату через ЮKassa...",
         "objectNameLabel": "Название объекта",
         "objectAddressLabel": "Ссылки объекта на платформах (URL), можно через запятую",
@@ -133,7 +132,7 @@ let translations = {
     "en": {
         "title": "Review Correction Calculator",
         "calculatorSubtitle": "Enter data for calculation",
-        "currentReviewsLabel": "Current number of reviews (0-10000):",
+        "currentReviewsLabel": "Current number of reviews:",
         "maxRatingLabel": "Maximum score (1-10):",
         "currentRatingLabel": "Current score (0-Max):",
         "targetRatingLabel": "Target score (0-Max):",
@@ -215,10 +214,9 @@ let translations = {
         "cookieNoticeText": "This website uses cookies to store data. By continuing to use the site, you consent to the use of these files.",
         "cookieNoticeAccept": "Accept",
         "cookieNoticeDecline": "Decline",
-        "cookieSettingsLabel": "Change cookie decision",
         "redirectingPayment": "Redirecting to YooKassa payment...",
         "objectNameLabel": "Object / Company Name",
-        "objectAddressLabel": "Link to object (URL)",
+        "objectAddressLabel": "Links to platforms (URL), possible to set list of platforms",
         "enterDetailsForPdf": "Enter details to generate PDF and request",
         "pdfReportTitle": "Commercial Proposal",
         "pdfReportSubtitle": "Reputation Management",
@@ -445,7 +443,6 @@ function updateLanguage(lang) {
         'cookieNoticeTitle': 'cookieNoticeTitle',
         'cookieNoticeText': 'cookieNoticeText',
         'cookieNoticeAccept': 'cookieNoticeAccept',
-        'cookieSettingsLabel': 'cookieSettingsLabel',
         'orderSuccessTitle': 'orderSuccessTitle',
         'orderSuccessMessage': 'orderSuccessMessage',
         'newCalculationButton': 'newCalculationButton',
@@ -611,11 +608,6 @@ function setupEventListeners() {
     document.getElementById('cookieNoticeDecline')?.addEventListener('click', () => {
         localStorage.setItem('cookieConsent', 'declined');
         hideCookieNotice();
-    });
-
-    document.getElementById('cookieSettingsButton')?.addEventListener('click', () => {
-        localStorage.removeItem('cookieConsent');
-        showCookieNotice();
     });
 
     const inputsWithRanges = ['currentReviews', 'maxRating', 'currentRating', 'targetRating', 'videoReviewQty', 'exclusiveArticleQty', 'aiArticleQty', 'articlePlacementQty'];
@@ -2002,15 +1994,5 @@ function hideCookieNotice() {
         setTimeout(() => {
             notice.classList.add('hidden');
         }, 300);
-    }
-}
-
-function showCookieNotice() {
-    const notice = document.getElementById('cookieNotice');
-    if (notice) {
-        notice.classList.remove('hidden');
-        setTimeout(() => {
-            notice.classList.add('visible');
-        }, 50);
     }
 }
