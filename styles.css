@@ -33,6 +33,64 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
+.cookie-notice {
+    position: fixed;
+    left: 24px;
+    right: 24px;
+    bottom: 24px;
+    z-index: 999;
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.15);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 22px;
+}
+
+.cookie-notice.hidden {
+    display: none;
+}
+
+.cookie-notice__content {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    flex: 1 1 480px;
+}
+
+.cookie-notice__icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #eff6ff;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.cookie-notice__text strong {
+    display: block;
+    font-size: 15px;
+    margin-bottom: 6px;
+}
+
+.cookie-notice__text p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+.cookie-notice__actions {
+    flex: 0 0 auto;
+}
+
 /* Header */
 .top-nav {
     background: rgba(255, 255, 255, 0.8);
@@ -743,6 +801,41 @@ body {
     font-size: 0.95rem;
 }
 
+.success-notice {
+    margin-top: 18px;
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 14px;
+    align-items: start;
+    background: #ecfdf3;
+    border: 1px solid #86efac;
+    border-radius: 14px;
+    padding: 16px;
+}
+
+.success-notice__icon {
+    color: #16a34a;
+    font-size: 28px;
+}
+
+.success-notice__content h4 {
+    margin: 0 0 6px;
+    font-size: 16px;
+}
+
+.success-notice__content p {
+    margin: 0 0 12px;
+    color: #166534;
+    font-size: 14px;
+    line-height: 1.45;
+}
+
+.success-notice__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
 /* Result Box */
 .result-box {
     margin-top: 32px;
@@ -774,6 +867,12 @@ body {
         border-bottom: 1px solid var(--border);
         max-height: 300px;
     }
+
+    .cookie-notice {
+        left: 16px;
+        right: 16px;
+        bottom: 16px;
+    }
 }
 
 @media (max-width: 600px) {
@@ -792,6 +891,22 @@ body {
 
     .form-section-group {
         grid-template-columns: 1fr;
+    }
+
+    .cookie-notice {
+        padding: 16px;
+    }
+
+    .cookie-notice__content {
+        flex: 1 1 100%;
+    }
+
+    .cookie-notice__actions {
+        width: 100%;
+    }
+
+    .cookie-notice__actions .btn {
+        width: 100%;
     }
 }
 
