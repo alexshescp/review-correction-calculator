@@ -1328,7 +1328,10 @@ function prepareAndPrint() {
 
     // Запускаем печать после загрузки
     const qrImg = container.querySelector('.qr-code-small');
+    let hasPrinted = false;
     const startPrint = () => {
+        if (hasPrinted) return;
+        hasPrinted = true;
         setTimeout(() => {
             window.print();
             // Очищаем после печати
@@ -1347,7 +1350,10 @@ function prepareAndPrint() {
         qrImg.onload = startPrint;
         qrImg.onerror = startPrint;
         // Таймаут на случай проблем с загрузкой
-        setTimeout(startPrint, 3000);
+        const fallbackTimer = setTimeout(startPrint, 3000);
+        const clearFallback = () => clearTimeout(fallbackTimer);
+        qrImg.addEventListener('load', clearFallback, { once: true });
+        qrImg.addEventListener('error', clearFallback, { once: true });
     } else {
         startPrint();
     }
